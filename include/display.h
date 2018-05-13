@@ -4,15 +4,19 @@
 #include <SDL2/SDL.h>
 
 class Display {
-  int width, height;
+  // Width and height of the window
+  int windowSize;
+  // Pointers to the SDL window and renderer
   SDL_Window* window;
   SDL_Renderer* render;
 public:
-  Display(int, int);
+  Display(int);
   void fillBlack();
   void end();
-  void update();
-  void wait(int);
+  void drawPixel(int x, int y) {SDL_RenderDrawPoint(render, x, y);};
+  void drawRect(SDL_Rect* r) {SDL_RenderDrawRect(render, r);};
+  void update() {SDL_RenderPresent(render);};
+  void wait(int t) {SDL_Delay(t);};
 };
 
 #endif

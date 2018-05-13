@@ -1,10 +1,14 @@
 #ifndef AGENT_H
 #define AGENT_H
 
-class Agent {
+// Forward declaration of current region
+class Region;
 
+class Agent {
+  Region* currentRegion;
 public:
   Agent();
+  Agent(Region*);
 };
 
 #endif
