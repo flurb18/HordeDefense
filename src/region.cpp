@@ -15,6 +15,6 @@ void Region::drawOutline() {
   disp->drawRect(&rect);
 }
 
-void Region::addAgent(int x, int y) {
-  agents.emplace_back(new Agent(this));
+void Region::drawAgents() {
+  //TODO
 }

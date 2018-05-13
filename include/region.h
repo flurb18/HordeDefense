@@ -13,6 +13,7 @@ class Agent;
 class Region {
   friend class Spawner;
   int x, y, size;
+  bool containsSpawner;
   SDL_Rect rect;
   Display* disp;
   vector<Agent*> agents;
@@ -20,7 +21,6 @@ public:
   Region(int, int, int, Display*);
   void drawAgents();
   void drawOutline();
-  void addAgent(int x, int y);
 };
 
 #endif

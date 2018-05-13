@@ -9,10 +9,10 @@ SDIR = src
 
 LIBS=-lSDL2
 
-_DEPS = agent.h display.h region.h game.h spawner.h
+_DEPS = agent.h display.h region.h game.h spawner.h context.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o display.o agent.o region.o game.o spawner.o
+_OBJ = main.o display.o agent.o region.o game.o spawner.o context.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

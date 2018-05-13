@@ -4,4 +4,5 @@
 
 Spawner::Spawner(Region* spawnerRegion) {
   reg = spawnerRegion;
+  reg->containsSpawner = true;
 }

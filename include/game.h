@@ -1,17 +1,30 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "display.h"
+#include <vector>
+#include <SDL2/SDL.h>
 
-const int GAME_CONTEXT_ZOOMED_OUT = 2;
-const int GAME_CONTEXT_EXIT = 10;
+#include "context.h"
+
+using std::vector;
+
+// Forward declaration of Region, Display
+class Display;
+class Region;
 
 class Game {
+private:
   Display* disp;
+  vector<Region*> regions;
+  void mouseMoved(int, int);
+  int regionSize;
+  int regionsPerSide;
 public:
-  int context;
+  Context gameContext;
   bool paused;
-  Game(Display*);
+  Game(Display*, const int&, const int&);
+  void mainLoop();
+  void draw();
 };
 
 
