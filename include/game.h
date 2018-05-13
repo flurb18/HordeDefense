@@ -19,8 +19,8 @@ private:
   int regionSize;
   int regionsPerSide;
 public:
-  Context gameContext;
-  Game(Display*, const int&, const int&);
+  Context* gameContext;
+  Game(Context*, Display*, const int&, const int&);
   void mainLoop();
   void draw();
 };

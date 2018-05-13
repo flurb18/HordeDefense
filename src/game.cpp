@@ -6,8 +6,8 @@
 #include "region.h"
 #include "context.h"
 
-Game::Game(Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
-  gameContext = Context();
+Game::Game(Context* c, Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
+  gameContext  = c;
   disp = d;
   regionSize = REG_SIZE;
   regionsPerSide = REG_PER_SIDE;
@@ -24,40 +24,40 @@ Game::Game(Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
 }
 
 void Game::mouseMoved(int x, int y) {
-  if (gameContext.type == GAME_CONTEXT_ZOOMED_OUT) {
+  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
     int regX = x / regionSize;
     int regY = y / regionSize;
     unsigned int regIndex = regY * regionsPerSide + regX;
     if (regIndex < 0 || regIndex >= regions.size()) {
       throw "Mouse is out of bounds or a region got deleted!";
     }
-    gameContext.setOutlinedRegionIndex(regIndex);
+    gameContext->setOutlinedRegionIndex(regIndex);
   }
 }
 
 void Game::draw() {
   disp->fillBlack();
-  if (gameContext.type == GAME_CONTEXT_ZOOMED_OUT) {
+  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
     for (unsigned int i = 0; i < regions.size(); i++) {
       regions[i]->drawAgents();
-      if (i == gameContext.getOutlinedRegionIndex()) {
+      if (i == gameContext->getOutlinedRegionIndex()) {
         regions[i]->drawOutline();
       }
     }
   }
-  if (gameContext.isPaused()) {
+  if (gameContext->isPaused()) {
     disp->drawText("PAUSED", 0, 0);
   }
 }
 
 void Game::mainLoop() {
   SDL_Event e;
-  while (gameContext.type != GAME_CONTEXT_EXIT) {
+  while (gameContext->type != GAME_CONTEXT_EXIT) {
     while (SDL_PollEvent(&e) != 0) {
       /* SDL_QUIT is outside switch statement, so we can break the event
       polling loop*/
       if (e.type == SDL_QUIT) {
-        gameContext.type = GAME_CONTEXT_EXIT;
+        gameContext->type = GAME_CONTEXT_EXIT;
         break;
       }
       switch(e.type) {
@@ -69,7 +69,7 @@ void Game::mainLoop() {
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {
             case SDLK_SPACE:
-              gameContext.togglePause();
+              gameContext->togglePause();
           }
       }
     }
