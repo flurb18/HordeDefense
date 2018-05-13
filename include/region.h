@@ -4,19 +4,21 @@
 #include <vector>
 #include <SDL2/SDL_rect.h>
 
-#include "display.h"
-#include "agent.h"
-
 using std::vector;
+
+// Forward declaration of Display  and Agent classes
+class Display;
+class Agent;
 
 class Region {
   int x, y, size;
   SDL_Rect rect;
+  Display* disp;
   vector<Agent*> agents;
 public:
-  Region(int, int, int);
-  void drawAgents(Display);
-  void drawOutline(Display d) {d.drawRect(&rect);};
+  Region(int, int, int, Display*);
+  void drawAgents();
+  void drawOutline();
   void addAgent(int x, int y);
 };
 
