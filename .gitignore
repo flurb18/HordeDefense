@@ -1,0 +1,5 @@
+build
+lib/*
+obj
+obj/*
+hd
