@@ -1,11 +1,10 @@
-IDIR = include
 CC=g++
 CFLAGS=-I$(IDIR) -Wall
 
 
 ODIR = obj
-LDIR = lib
 SDIR = src
+IDIR = include
 
 LIBS=-lSDL2 -lSDL2_ttf
 
