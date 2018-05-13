@@ -3,13 +3,12 @@
 
 #include <vector>
 
-#include "context.h"
-
 using std::vector;
 
-// Forward declaration of Region, Display
+// Forward declaration of Region, Display and Context
 class Display;
 class Region;
+class Context;
 
 class Game {
 private:
