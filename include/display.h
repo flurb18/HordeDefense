@@ -1,22 +1,27 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <SDL2/SDL.h>
+// Forward declarations of SDL and TTF stuff
+class SDL_Window;
+class SDL_Renderer;
+class SDL_Rect;
+typedef struct _TTF_Font TTF_Font;
 
 class Display {
   // Width and height of the window
   int windowSize;
-  // Pointers to the SDL window and renderer
+  // Pointers to the SDL window and renderer, and TTF font
   SDL_Window* window;
   SDL_Renderer* render;
+  TTF_Font* font;
 public:
   Display(int);
   void fillBlack();
   void end();
-  void drawPixel(int x, int y) {SDL_RenderDrawPoint(render, x, y);};
-  void drawRect(SDL_Rect* r) {SDL_RenderDrawRect(render, r);};
-  void update() {SDL_RenderPresent(render);};
-  void wait(int t) {SDL_Delay(t);};
+  void drawPixel(int, int);
+  void drawRect(SDL_Rect*);
+  void update();
+  void wait(int);
 };
 
 #endif

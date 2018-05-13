@@ -4,9 +4,8 @@
 #include "region.h"
 #include "context.h"
 
-Game::Game(Display* d, const int &REG_SIZE, const int &REG_PER_SIDE) {
+Game::Game(Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
   gameContext = Context();
-  paused = true;
   disp = d;
   regionSize = REG_SIZE;
   regionsPerSide = REG_PER_SIDE;
@@ -50,10 +49,13 @@ void Game::mainLoop() {
   SDL_Event e;
   while (gameContext.type != GAME_CONTEXT_EXIT) {
     while (SDL_PollEvent(&e) != 0) {
+      /* SDL_QUIT is outside switch statement, so we can break the event
+      polling loop*/
+      if (e.type == SDL_QUIT) {
+        gameContext.type = GAME_CONTEXT_EXIT;
+        break;
+      }
       switch(e.type) {
-        case SDL_QUIT:
-          gameContext.type = GAME_CONTEXT_EXIT;
-          break;
         case SDL_MOUSEMOTION:
           int x, y;
           SDL_GetMouseState(&x, &y);
@@ -62,7 +64,7 @@ void Game::mainLoop() {
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {
             case SDLK_SPACE:
-              paused = !paused;
+              gameContext.togglePause();
           }
       }
     }

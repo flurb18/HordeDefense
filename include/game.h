@@ -21,7 +21,6 @@ private:
   int regionsPerSide;
 public:
   Context gameContext;
-  bool paused;
   Game(Display*, const int&, const int&);
   void mainLoop();
   void draw();

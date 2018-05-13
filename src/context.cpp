@@ -3,6 +3,7 @@
 Context::Context() {
   type = GAME_CONTEXT_ZOOMED_OUT;
   outlinedRegionIndex = 0;
+  paused = true;
 }
 
 unsigned int Context::getOutlinedRegionIndex() {

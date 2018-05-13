@@ -1,10 +1,6 @@
-#include <vector>
-#include <iostream>
 
 #include "display.h"
 #include "game.h"
-
-using std::vector;
 
 int main(int argc, char* argv[]) {
   const int REG_SIZE = 35;

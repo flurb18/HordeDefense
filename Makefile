@@ -7,7 +7,7 @@ ODIR = obj
 LDIR = lib
 SDIR = src
 
-LIBS=-lSDL2
+LIBS=-lSDL2 -lSDL2_ttf
 
 _DEPS = agent.h display.h region.h game.h spawner.h context.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
