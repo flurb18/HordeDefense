@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include <SDL2/SDL_events.h>
+
 #include "display.h"
 #include "region.h"
 #include "context.h"
