@@ -34,7 +34,8 @@ Display::Display(int s) {
   }
   render = SDL_CreateRenderer(window, -1, 0);
   SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-  font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf", 24);
+  fontFile = "/usr/share/fonts/TTF/DejaVuSansMono.ttf";
+  font = TTF_OpenFont(fontFile, 24);
   if (font == NULL) {
     std::cerr << "Font could not be laoded!\n";
     std::cerr << TTF_GetError() << std::endl;

@@ -14,6 +14,8 @@ class Display {
   SDL_Window* window;
   SDL_Renderer* render;
   TTF_Font* font;
+  // File where font was opened from
+  const char* fontFile;
 public:
   Display(int);
   void fillBlack();
