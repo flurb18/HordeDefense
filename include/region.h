@@ -11,6 +11,7 @@ class Display;
 class Agent;
 
 class Region {
+  friend class Spawner;
   int x, y, size;
   SDL_Rect rect;
   Display* disp;
