@@ -43,6 +43,9 @@ void Game::draw() {
       }
     }
   }
+  if (gameContext.isPaused()) {
+    disp->drawText("PAUSED", 0, 0);
+  }
 }
 
 void Game::mainLoop() {

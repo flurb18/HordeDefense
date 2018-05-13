@@ -20,6 +20,7 @@ public:
   void end();
   void drawPixel(int, int);
   void drawRect(SDL_Rect*);
+  void drawText(const char*, int, int);
   void update();
   void wait(int);
 };
