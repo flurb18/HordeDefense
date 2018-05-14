@@ -5,8 +5,7 @@
 #include <iostream>
 
 // Initialize a display, with a window size (square, so width == height)
-Display::Display(int s) {
-  windowSize = s;
+Display::Display(int s) : Square(s) {
   // Initialize SDL, and check if it initialized correctly
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cerr << "SDL not initialized correctly\n";
@@ -21,8 +20,8 @@ Display::Display(int s) {
     "Horde Defense",                  //    window title
     SDL_WINDOWPOS_UNDEFINED,           //    initial x position
     SDL_WINDOWPOS_UNDEFINED,           //    initial y position
-    windowSize,                               //    width, in pixels
-    windowSize,                               //    height, in pixels
+    size,                               //    width, in pixels
+    size,                               //    height, in pixels
     SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL //    flags
   );
   // Check that the window was successfully made
@@ -34,7 +33,8 @@ Display::Display(int s) {
   }
   render = SDL_CreateRenderer(window, -1, 0);
   SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-  fontFile = "/usr/share/fonts/TTF/DejaVuSansMono.ttf";
+  //fontFile = "/usr/share/fonts/TTF/DejaVuSansMono.ttf";
+  fontFile = "/usr/share/fonts/TTF/Roboto-Regular.ttf";
   font = TTF_OpenFont(fontFile, 24);
   if (font == NULL) {
     std::cerr << "Font could not be laoded!\n";
@@ -54,8 +54,14 @@ void Display::drawPixel(int x, int y) {
   SDL_RenderDrawPoint(render, x, y);
 }
 
-void Display::drawRect(SDL_Rect* r) {
-  SDL_RenderDrawRect(render, r);
+void Display::drawRect(int x, int y, int w, int h) {
+  SDL_Rect rect = {x, y, w, h};
+  SDL_RenderDrawRect(render, &rect);
+}
+
+void Display::drawRectFilled(int x, int y, int w, int h) {
+  SDL_Rect rect = {x, y, w, h};
+  SDL_RenderFillRect(render, &rect);
 }
 
 void Display::drawText(const char *text, int x, int y) {

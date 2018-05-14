@@ -5,23 +5,29 @@
 
 using std::vector;
 
-// Forward declaration of Region, Display and Context
+// Forward declarations
+class Context;
 class Display;
 class Region;
-class Context;
+class Spawner;
+
 
 class Game {
 private:
+  unsigned int regionSize;
+  unsigned int regionsPerSide;
+  unsigned int regionRadius;
   Display* disp;
+  Spawner* spawn;
   vector<Region*> regions;
+  unsigned int regCoordsToIndex(int, int);
+  unsigned int winCoordsToIndex(int, int);
   void mouseMoved(int, int);
-  int regionSize;
-  int regionsPerSide;
+  void draw();
 public:
   Context* gameContext;
   Game(Context*, Display*, const int&, const int&);
   void mainLoop();
-  void draw();
 };
 
 

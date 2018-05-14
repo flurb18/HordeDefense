@@ -2,19 +2,21 @@
 #define REGION_H
 
 #include <vector>
-#include <SDL2/SDL_rect.h>
+
+#include "square.h"
 
 using std::vector;
 
-// Forward declaration of Display  and Agent classes
+// Forward declaration of Display and Agent classes
 class Display;
 class Agent;
+class Spawner;
 
-class Region {
+class Region: public Square {
   friend class Spawner;
-  int x, y, size;
+  int x, y;
+  Spawner* spawn;
   bool containsSpawner;
-  SDL_Rect rect;
   Display* disp;
   vector<Agent*> agents;
 public:

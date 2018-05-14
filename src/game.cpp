@@ -1,37 +1,51 @@
 #include "game.h"
 
 #include <SDL2/SDL_events.h>
+#include <iostream>
 
+#include "context.h"
 #include "display.h"
 #include "region.h"
-#include "context.h"
+#include "spawner.h"
 
 Game::Game(Context* c, Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
   gameContext  = c;
   disp = d;
   regionSize = REG_SIZE;
   regionsPerSide = REG_PER_SIDE;
+  // Regions is a vector
   regions.reserve(regionsPerSide * regionsPerSide);
   /* Regions are created in the x direction; it fills the top row with regions
   from left to right, then the next row and so on
   SDL window x and y start at 0 at top left and increase right and
   down respectively*/
-  for (int i = 0; i < regionsPerSide; i++) {
-    for (int j = 0; j < regionsPerSide; j++) {
+  for (unsigned int i = 0; i < regionsPerSide; i++) {
+    for (unsigned int j = 0; j < regionsPerSide; j++) {
       regions.push_back(new Region(j*regionSize, i*regionSize, regionSize, disp));
     }
   }
+  // do something with this
+  Region* centerRegion = regions[winCoordsToIndex(disp->getRadius(), disp->getRadius())];
+  spawn = new Spawner(centerRegion, regionSize / 4);
+}
+
+unsigned int Game::regCoordsToIndex(int regX, int regY) {
+  unsigned int regIndex = regY * regionsPerSide + regX;
+  if (regIndex >= regions.size()) {
+    std::cerr << "Invalid argument to regionIndexFromRegionCoords()" << std::endl;
+    std::cerr << regIndex << std::endl;
+    throw 1;
+  }
+  return regIndex;
+}
+
+unsigned int Game::winCoordsToIndex(int x, int y) {
+  return regCoordsToIndex(x / regionSize, y / regionSize);
 }
 
 void Game::mouseMoved(int x, int y) {
   if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
-    int regX = x / regionSize;
-    int regY = y / regionSize;
-    unsigned int regIndex = regY * regionsPerSide + regX;
-    if (regIndex < 0 || regIndex >= regions.size()) {
-      throw "Mouse is out of bounds or a region got deleted!";
-    }
-    gameContext->setOutlinedRegionIndex(regIndex);
+    gameContext->setOutlinedRegionIndex(winCoordsToIndex(x, y));
   }
 }
 
