@@ -3,6 +3,7 @@
 Context::Context() {
   type = GAME_CONTEXT_ZOOMED_OUT;
   currentRegionIndex = 0;
+  t = 0;
   paused = true;
 }
 

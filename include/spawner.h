@@ -12,12 +12,14 @@ struct Team;
 
 // A spawner is always at the center of its region
 class Spawner: public Square {
+  unsigned int timeToCreateAgent;
   Context* gameContext;
-  Region* spawnerRegion;
+  Region* region;
+  void spawnAgent();
 public:
   const Team* team;
-  Spawner(Context*, Region*, const Team*, unsigned int s);
-  void spawnAgent();
+  Spawner(Context*, Region*, const Team*, unsigned int, unsigned int);
+  void update();
 };
 
 #endif

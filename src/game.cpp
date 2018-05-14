@@ -29,7 +29,7 @@ Game::Game(Context* c, Display* d, const int& s, const int& r):\
   }
   // do something with this
   Region* centerRegion = regions[winCoordsToIndex(disp->getRadius(), disp->getRadius())];
-  spawn = new Spawner(gameContext, centerRegion, &WHITE_TEAM, regionSize / 4);
+  spawn = new Spawner(gameContext, centerRegion, &WHITE_TEAM, regionSize / 4, 100);
 }
 
 unsigned int Game::regCoordsToIndex(int regX, int regY) {
@@ -118,10 +118,13 @@ void Game::mainLoop() {
           break;
         case SDL_MOUSEBUTTONDOWN:
           SDL_GetMouseState(&x, &y);
-          if (e.button.button == SDL_BUTTON_LEFT) {
+          switch(e.button.button) {
+            case SDL_BUTTON_LEFT:
               leftMouseClicked(x, y);
-          } else if (e.button.button == SDL_BUTTON_RIGHT) {
+              break;
+            case SDL_BUTTON_RIGHT:
               rightMouseClicked(x, y);
+              break;
           }
           break;
         case SDL_KEYDOWN:
@@ -134,6 +137,7 @@ void Game::mainLoop() {
     }
     if (!gameContext->isPaused()) {
       updateRegions();
+      gameContext->t++;
     }
     draw();
     disp->update();

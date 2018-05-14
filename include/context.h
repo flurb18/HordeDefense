@@ -13,7 +13,7 @@ private:
   bool paused;
   unsigned int currentRegionIndex;
 public:
-  unsigned int type;
+  unsigned int type, t;
   Context();
   unsigned int getCurrentRegionIndex();
   void setCurrentRegionIndex(unsigned int);
