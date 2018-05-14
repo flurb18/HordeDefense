@@ -144,3 +144,10 @@ void Game::mainLoop() {
     disp->wait(10);
   }
 }
+
+Game::~Game() {
+  for (unsigned int i = 0; i < regions.size(); i++) {
+    delete regions[i];
+  }
+  regions.clear();
+}

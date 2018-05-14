@@ -28,6 +28,7 @@ private:
 public:
   Context* gameContext;
   Game(Context*, Display*, const int&, const int&);
+  ~Game();
   void mainLoop();
 };
 

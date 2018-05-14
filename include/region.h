@@ -20,6 +20,7 @@ class Region: public Square {
 public:
   Region(Display* d, int x_, int y_, int s): Square(s), x(x_), y(y_), \
          containsSpawner(false), disp(d) {};
+  ~Region();
   void drawAgents();
   void drawAgentsZoomedIn();
   void drawOutline();

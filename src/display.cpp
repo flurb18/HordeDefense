@@ -4,6 +4,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
+#include "team.h"
+
 // Initialize a display, with a window size (square, so width == height)
 Display::Display(int s) : Square(s) {
   // Initialize SDL, and check if it initialized correctly
@@ -51,6 +53,10 @@ void Display::fillBlack() {
 
 void Display::setDrawColor(int r, int g, int b) {
   SDL_SetRenderDrawColor(render, r, g, b, 255);
+}
+
+void Display::setDrawColor(const Team *team) {
+  SDL_SetRenderDrawColor(render, team->R, team->B, team->G, 255);
 }
 
 void Display::drawPixel(int x, int y) {
