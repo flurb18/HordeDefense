@@ -11,7 +11,7 @@
 #include "team.h"
 
 Game::Game(Context* c, Display* d, const int& s, const int& r):\
-           regionSize(s), regionsPerSide(r), disp(d), gameContext(c) {
+           regionSize(s), regionsPerSide(r), gameContext(c), disp(d){
   /*gameContext = c;
   disp = d;
   regionSize = REG_SIZE;

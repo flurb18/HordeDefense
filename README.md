@@ -8,11 +8,6 @@ of development.
 # To-do list:
 
 - add difficulty factor to game context
-- make enemy spawner
-
-- Make all relevant objects know game context
-- Make Unit class, friendly Agent
-- Make Enemy class, unfriendly Agent
 - Make Agents able to follow orders (go to region & explore to start); call class
   Mission
 - create class for path finding through a square of n x n nodes with some
@@ -34,8 +29,10 @@ of development.
       See if can path to it within region
       else, find available wall space (region edges) from agent starting point,
       pathfind across map to available wall space from destination
-  + Use Percolation from 226; union find mf
+  + Use Percolation / Union find
 - Create Walls buildable by any Agent
+- Create Doors, walls passable by anyone on same team as the door
+- Give Buildings health
 - give Agents Reactions: when encountering an enemy unit, does it fight / flee /
   report to user / etc.? When encountering unexpected wall, go on exploration
   mission to update pathing  / try to break through wall / etc.? Should depend

@@ -14,6 +14,7 @@ class Game {
 private:
   unsigned int regionSize;
   unsigned int regionsPerSide;
+  Context* gameContext;
   Display* disp;
   Spawner* spawn;
   std::vector<Region*> regions;
@@ -26,7 +27,6 @@ private:
   void draw();
   void updateRegions();
 public:
-  Context* gameContext;
   Game(Context*, Display*, const int&, const int&);
   ~Game();
   void mainLoop();
