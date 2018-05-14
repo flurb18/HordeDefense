@@ -5,8 +5,6 @@
 
 #include "square.h"
 
-using std::vector;
-
 // Forward declaration of Display and Agent classes
 class Display;
 class Agent;
@@ -18,11 +16,12 @@ class Region: public Square {
   bool containsSpawner;
   Display* disp;
   Spawner* spawn;
-  vector<Agent*> agents;
+  std::vector<Agent*> agents;
 public:
   Region(Display* d, int x_, int y_, int s): Square(s), x(x_), y(y_), \
          containsSpawner(false), disp(d) {};
   void drawAgents();
+  void drawAgentsZoomedIn();
   void drawOutline();
   void update();
 };

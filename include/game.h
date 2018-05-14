@@ -3,8 +3,6 @@
 
 #include <vector>
 
-using std::vector;
-
 // Forward declarations
 class Context;
 class Display;
@@ -18,10 +16,13 @@ private:
   unsigned int regionsPerSide;
   Display* disp;
   Spawner* spawn;
-  vector<Region*> regions;
+  std::vector<Region*> regions;
   unsigned int regCoordsToIndex(int, int);
   unsigned int winCoordsToIndex(int, int);
+  void indexToRegCoords(int, int*, int*);
   void mouseMoved(int, int);
+  void leftMouseClicked(int, int);
+  void rightMouseClicked(int, int);
   void draw();
   void updateRegions();
 public:

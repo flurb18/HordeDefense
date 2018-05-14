@@ -77,6 +77,10 @@ void Display::drawText(const char *text, int x, int y) {
   SDL_DestroyTexture(texture);
 }
 
+void Display::sizeText(const char *text, int *w, int *h) {
+  TTF_SizeText(font, text, w, h);
+}
+
 void Display::update() {
   SDL_RenderPresent(render);
 }

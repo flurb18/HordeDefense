@@ -24,6 +24,7 @@ public:
   void drawRect(int, int, int, int);
   void drawRectFilled(int, int, int, int);
   void drawText(const char*, int, int);
+  void sizeText(const char*, int*, int*);
   void update();
   void wait(int);
 };

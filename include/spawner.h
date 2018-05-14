@@ -1,6 +1,8 @@
 #ifndef SPAWNER_H
 #define SPAWNER_H
 
+#include <vector>
+
 #include "square.h"
 
 // Forward declarations

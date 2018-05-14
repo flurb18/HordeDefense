@@ -2,20 +2,17 @@
 
 Context::Context() {
   type = GAME_CONTEXT_ZOOMED_OUT;
-  outlinedRegionIndex = 0;
+  currentRegionIndex = 0;
   paused = true;
 }
 
-unsigned int Context::getOutlinedRegionIndex() {
-  if (type != GAME_CONTEXT_ZOOMED_OUT) {
-    throw "Incorrect game context! Shouldn't be requesting region outline...";
-  }
-  return outlinedRegionIndex;
+unsigned int Context::getCurrentRegionIndex() {
+  return currentRegionIndex;
 }
 
-void Context::setOutlinedRegionIndex(unsigned int i) {
+void Context::setCurrentRegionIndex(unsigned int i) {
   if (type != GAME_CONTEXT_ZOOMED_OUT) {
-    throw "Incorrect game context! Shouldn't be setting region outline...";
+    throw "Incorrect game context! Shouldn't be setting current region...";
   }
-  outlinedRegionIndex = i;
+  currentRegionIndex = i;
 }

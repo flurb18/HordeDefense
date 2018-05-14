@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL_events.h>
 #include <iostream>
+#include <string>
 
 #include "context.h"
 #include "display.h"
@@ -34,11 +35,16 @@ Game::Game(Context* c, Display* d, const int& s, const int& r):\
 unsigned int Game::regCoordsToIndex(int regX, int regY) {
   unsigned int regIndex = regY * regionsPerSide + regX;
   if (regIndex >= regions.size()) {
-    std::cerr << "Invalid argument to regionIndexFromRegionCoords()" << std::endl;
+    std::cerr << "Invalid argument to regCoordsToIndex()" << std::endl;
     std::cerr << regIndex << std::endl;
     throw 1;
   }
   return regIndex;
+}
+
+void Game::indexToRegCoords(int index, int *x, int *y) {
+  *x = index % regionsPerSide;
+  *y = index / regionsPerSide;
 }
 
 unsigned int Game::winCoordsToIndex(int x, int y) {
@@ -47,7 +53,19 @@ unsigned int Game::winCoordsToIndex(int x, int y) {
 
 void Game::mouseMoved(int x, int y) {
   if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
-    gameContext->setOutlinedRegionIndex(winCoordsToIndex(x, y));
+    gameContext->setCurrentRegionIndex(winCoordsToIndex(x, y));
+  }
+}
+
+void Game::leftMouseClicked(int x, int y) {
+  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
+    gameContext->type = GAME_CONTEXT_ZOOMED_IN;
+  }
+}
+
+void Game::rightMouseClicked(int x, int y) {
+  if (gameContext->type == GAME_CONTEXT_ZOOMED_IN) {
+    gameContext->type = GAME_CONTEXT_ZOOMED_OUT;
   }
 }
 
@@ -56,15 +74,23 @@ void Game::draw() {
   if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
     for (unsigned int i = 0; i < regions.size(); i++) {
       regions[i]->drawAgents();
-      if (i == gameContext->getOutlinedRegionIndex()) {
+      if (i == gameContext->getCurrentRegionIndex()) {
         disp->setDrawColor(255, 255, 255);
         regions[i]->drawOutline();
       }
     }
+  } else if (gameContext->type == GAME_CONTEXT_ZOOMED_IN) {
+    regions[gameContext->getCurrentRegionIndex()]->drawAgentsZoomedIn();
   }
   if (gameContext->isPaused()) {
     disp->drawText("PAUSED", 0, 0);
   }
+  int x, y;
+  indexToRegCoords(gameContext->getCurrentRegionIndex(), &x, &y);
+  const char *s = (std::to_string(x) + ", " + std::to_string(y)).c_str();
+  int w, h;
+  disp->sizeText(s, &w, &h);
+  disp->drawText(s, disp->getSize() - w, 0);
 }
 
 void Game::updateRegions() {
@@ -75,7 +101,9 @@ void Game::updateRegions() {
 
 void Game::mainLoop() {
   SDL_Event e;
+  int x, y;
   while (gameContext->type != GAME_CONTEXT_EXIT) {
+    // Main SDL event loop
     while (SDL_PollEvent(&e) != 0) {
       /* SDL_QUIT is outside switch statement, so we can break the event
       polling loop*/
@@ -85,15 +113,23 @@ void Game::mainLoop() {
       }
       switch(e.type) {
         case SDL_MOUSEMOTION:
-          int x, y;
           SDL_GetMouseState(&x, &y);
           mouseMoved(x, y);
+          break;
+        case SDL_MOUSEBUTTONDOWN:
+          SDL_GetMouseState(&x, &y);
+          if (e.button.button == SDL_BUTTON_LEFT) {
+              leftMouseClicked(x, y);
+          } else if (e.button.button == SDL_BUTTON_RIGHT) {
+              rightMouseClicked(x, y);
+          }
           break;
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {
             case SDLK_SPACE:
               gameContext->togglePause();
           }
+          break;
       }
     }
     if (!gameContext->isPaused()) {
