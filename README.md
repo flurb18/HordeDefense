@@ -56,8 +56,7 @@ Far away:
 - make Agents evolve sophisticated communication techniques
 - make Agents believe in me as their God
 - Agent philosophers
-- Agents realize they are the ones making their own decisions (ehh, just as much
-  as we are :-) ), achieve self awareness
+- Agents realize they are the ones making their own decisions, achieve self awareness
 - singularity reached
 - People running our reality as a simulation decide to stop as its gone too far
 - Entire universe as we know it blinks out of existence like a candle blown out
