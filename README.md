@@ -1,4 +1,11 @@
-To-do list:
+# About
+Right now, Horde Defense is a game focused on controlling your units and allowing
+units to control other units, so you can create a chain of command, armies, etc.
+Units should also be able to build walls (/turrets?). The game is in early stages
+of development.
+
+
+# To-do list:
 
 - add difficulty factor to game context
 - make enemy spawner
