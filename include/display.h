@@ -19,6 +19,7 @@ public:
   Display(int);
   void fillBlack();
   void end();
+  void setDrawColor(int, int, int);
   void drawPixel(int, int);
   void drawRect(int, int, int, int);
   void drawRectFilled(int, int, int, int);

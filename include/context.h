@@ -1,6 +1,9 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+// Forward declarations
+struct Team;
+
 const int GAME_CONTEXT_ZOOMED_OUT = 2;
 const int GAME_CONTEXT_EXIT = 10;
 
@@ -15,6 +18,7 @@ public:
   void setOutlinedRegionIndex(unsigned int);
   void togglePause() {paused = !paused;};
   bool isPaused() {return paused;};
+  Team getTeam(int);
 };
 
 

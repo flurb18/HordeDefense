@@ -3,16 +3,19 @@
 
 #include "square.h"
 
-// Forward declaration of Region class
+// Forward declarations
+class Context;
 class Region;
+struct Team;
 
 // A spawner is always at the center of its region
 class Spawner: public Square {
-  Region* reg;
-  unsigned int spawnerRadius;
+  Context* gameContext;
+  Region* spawnerRegion;
 public:
-  Spawner(Region*, unsigned int s);
-  void spawnUnit();
+  const Team* team;
+  Spawner(Context*, Region*, const Team*, unsigned int s);
+  void spawnAgent();
 };
 
 #endif

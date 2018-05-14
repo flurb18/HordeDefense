@@ -44,10 +44,13 @@ Display::Display(int s) : Square(s) {
 }
 
 void Display::fillBlack() {
-  SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+  setDrawColor(0, 0, 0);
   // Clear the window with the color
   SDL_RenderClear(render);
-  SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+}
+
+void Display::setDrawColor(int r, int g, int b) {
+  SDL_SetRenderDrawColor(render, r, g, b, 255);
 }
 
 void Display::drawPixel(int x, int y) {

@@ -16,7 +16,6 @@ class Game {
 private:
   unsigned int regionSize;
   unsigned int regionsPerSide;
-  unsigned int regionRadius;
   Display* disp;
   Spawner* spawn;
   vector<Region*> regions;
@@ -24,6 +23,7 @@ private:
   unsigned int winCoordsToIndex(int, int);
   void mouseMoved(int, int);
   void draw();
+  void updateRegions();
 public:
   Context* gameContext;
   Game(Context*, Display*, const int&, const int&);

@@ -7,12 +7,14 @@
 #include "display.h"
 #include "region.h"
 #include "spawner.h"
+#include "team.h"
 
-Game::Game(Context* c, Display* d, const int& REG_SIZE, const int& REG_PER_SIDE) {
-  gameContext  = c;
+Game::Game(Context* c, Display* d, const int& s, const int& r):\
+           regionSize(s), regionsPerSide(r), disp(d), gameContext(c) {
+  /*gameContext = c;
   disp = d;
   regionSize = REG_SIZE;
-  regionsPerSide = REG_PER_SIDE;
+  regionsPerSide = REG_PER_SIDE;*/
   // Regions is a vector
   regions.reserve(regionsPerSide * regionsPerSide);
   /* Regions are created in the x direction; it fills the top row with regions
@@ -21,12 +23,12 @@ Game::Game(Context* c, Display* d, const int& REG_SIZE, const int& REG_PER_SIDE)
   down respectively*/
   for (unsigned int i = 0; i < regionsPerSide; i++) {
     for (unsigned int j = 0; j < regionsPerSide; j++) {
-      regions.push_back(new Region(j*regionSize, i*regionSize, regionSize, disp));
+      regions.push_back(new Region(disp, j*regionSize, i*regionSize, regionSize));
     }
   }
   // do something with this
   Region* centerRegion = regions[winCoordsToIndex(disp->getRadius(), disp->getRadius())];
-  spawn = new Spawner(centerRegion, regionSize / 4);
+  spawn = new Spawner(gameContext, centerRegion, &WHITE_TEAM, regionSize / 4);
 }
 
 unsigned int Game::regCoordsToIndex(int regX, int regY) {
@@ -55,12 +57,19 @@ void Game::draw() {
     for (unsigned int i = 0; i < regions.size(); i++) {
       regions[i]->drawAgents();
       if (i == gameContext->getOutlinedRegionIndex()) {
+        disp->setDrawColor(255, 255, 255);
         regions[i]->drawOutline();
       }
     }
   }
   if (gameContext->isPaused()) {
     disp->drawText("PAUSED", 0, 0);
+  }
+}
+
+void Game::updateRegions() {
+  for (unsigned int i = 0; i < regions.size(); i++) {
+    regions[i]->update();
   }
 }
 
@@ -86,6 +95,9 @@ void Game::mainLoop() {
               gameContext->togglePause();
           }
       }
+    }
+    if (!gameContext->isPaused()) {
+      updateRegions();
     }
     draw();
     disp->update();

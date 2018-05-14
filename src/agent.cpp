@@ -1,7 +1,5 @@
 #include "agent.h"
+
+#include "context.h"
 #include "region.h"
-
-Agent::Agent(Region* rptr) {
-  currentRegion = rptr;
-
-}
+#include "team.h"
