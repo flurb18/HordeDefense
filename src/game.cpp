@@ -4,36 +4,35 @@
 #include <iostream>
 #include <string>
 
-#include "context.h"
 #include "display.h"
 #include "region.h"
 #include "spawner.h"
-#include "team.h"
 
-Game::Game(Context* c, Display* d, const int& s, const int& r):\
-           regionSize(s), regionsPerSide(r), gameContext(c), disp(d){
-  /*gameContext = c;
-  disp = d;
-  regionSize = REG_SIZE;
-  regionsPerSide = REG_PER_SIDE;*/
+Game::Game(Display* d, const int& s, const int& r):\
+           rSize(s), rPerSide(r), disp(d) {
+  context = GAME_CONTEXT_ZOOMED_OUT;
+  currentRegionIndex = 0;
+  currentUnitIndex = 0;
+  t = 0;
+  paused = true;
   // Regions is a vector
-  regions.reserve(regionsPerSide * regionsPerSide);
+  regions.reserve(rPerSide * rPerSide);
   /* Regions are created in the x direction; it fills the top row with regions
   from left to right, then the next row and so on
   SDL window x and y start at 0 at top left and increase right and
   down respectively*/
-  for (unsigned int i = 0; i < regionsPerSide; i++) {
-    for (unsigned int j = 0; j < regionsPerSide; j++) {
-      regions.push_back(new Region(disp, j*regionSize, i*regionSize, regionSize));
+  for (unsigned int i = 0; i < rPerSide; i++) {
+    for (unsigned int j = 0; j < rPerSide; j++) {
+      regions.push_back(new Region(this, j*rSize, i*rSize, rSize));
     }
   }
   // do something with this
-  Region* centerRegion = regions[winCoordsToIndex(disp->getRadius(), disp->getRadius())];
-  spawn = new Spawner(gameContext, centerRegion, &WHITE_TEAM, regionSize / 4, 100);
+  Region* centerRegion = regions[winCoordsToRegIndex(disp->getRadius(), disp->getRadius())];
+  spawn = new Spawner(this, centerRegion, &WHITE_TEAM, rSize / 4, 3);
 }
 
-unsigned int Game::regCoordsToIndex(int regX, int regY) {
-  unsigned int regIndex = regY * regionsPerSide + regX;
+unsigned int Game::regCoordsToRegIndex(int regX, int regY) {
+  unsigned int regIndex = regY * rPerSide + regX;
   if (regIndex >= regions.size()) {
     std::cerr << "Invalid argument to regCoordsToIndex()" << std::endl;
     std::cerr << regIndex << std::endl;
@@ -42,51 +41,59 @@ unsigned int Game::regCoordsToIndex(int regX, int regY) {
   return regIndex;
 }
 
-void Game::indexToRegCoords(int index, int *x, int *y) {
-  *x = index % regionsPerSide;
-  *y = index / regionsPerSide;
+void Game::regIndexToRegCoords(int index, int *x, int *y) {
+  *x = index % rPerSide;
+  *y = index / rPerSide;
 }
 
-unsigned int Game::winCoordsToIndex(int x, int y) {
-  return regCoordsToIndex(x / regionSize, y / regionSize);
+unsigned int Game::winCoordsToRegIndex(int x, int y) {
+  return regCoordsToRegIndex(x / rSize, y / rSize);
 }
 
 void Game::mouseMoved(int x, int y) {
-  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
-    gameContext->setCurrentRegionIndex(winCoordsToIndex(x, y));
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      currentRegionIndex = winCoordsToRegIndex(x, y);
+      break;
+    /*case GAME_CONTEXT_ZOOMED_IN:
+      gameContext->setCurrentUnitIndex();
+      break;*/
   }
 }
 
 void Game::leftMouseClicked(int x, int y) {
-  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
-    gameContext->type = GAME_CONTEXT_ZOOMED_IN;
+  if (context == GAME_CONTEXT_ZOOMED_OUT) {
+    context = GAME_CONTEXT_ZOOMED_IN;
   }
 }
 
 void Game::rightMouseClicked(int x, int y) {
-  if (gameContext->type == GAME_CONTEXT_ZOOMED_IN) {
-    gameContext->type = GAME_CONTEXT_ZOOMED_OUT;
+  if (context == GAME_CONTEXT_ZOOMED_IN) {
+    context = GAME_CONTEXT_ZOOMED_OUT;
   }
 }
 
 void Game::draw() {
   disp->fillBlack();
-  if (gameContext->type == GAME_CONTEXT_ZOOMED_OUT) {
-    for (unsigned int i = 0; i < regions.size(); i++) {
-      regions[i]->drawAgents();
-      if (i == gameContext->getCurrentRegionIndex()) {
-        disp->setDrawColor(255, 255, 255);
-        regions[i]->drawOutline();
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      for (unsigned int i = 0; i < regions.size(); i++) {
+        regions[i]->drawUnits();
+        if (i == currentRegionIndex) {
+          disp->setDrawColor(255, 255, 255);
+          regions[i]->drawOutline();
+        }
       }
-    }
-  } else if (gameContext->type == GAME_CONTEXT_ZOOMED_IN) {
-    regions[gameContext->getCurrentRegionIndex()]->drawAgentsZoomedIn();
+      break;
+    case GAME_CONTEXT_ZOOMED_IN:
+      regions[currentRegionIndex]->drawUnitsZoomedIn();
+      break;
   }
-  if (gameContext->isPaused()) {
+  if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
   int x, y;
-  indexToRegCoords(gameContext->getCurrentRegionIndex(), &x, &y);
+  regIndexToRegCoords(currentRegionIndex, &x, &y);
   const char *s = (std::to_string(x) + ", " + std::to_string(y)).c_str();
   int w, h;
   disp->sizeText(s, &w, &h);
@@ -102,13 +109,13 @@ void Game::updateRegions() {
 void Game::mainLoop() {
   SDL_Event e;
   int x, y;
-  while (gameContext->type != GAME_CONTEXT_EXIT) {
+  while (context != GAME_CONTEXT_EXIT) {
     // Main SDL event loop
     while (SDL_PollEvent(&e) != 0) {
       /* SDL_QUIT is outside switch statement, so we can break the event
       polling loop*/
       if (e.type == SDL_QUIT) {
-        gameContext->type = GAME_CONTEXT_EXIT;
+        context = GAME_CONTEXT_EXIT;
         break;
       }
       switch(e.type) {
@@ -130,14 +137,15 @@ void Game::mainLoop() {
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {
             case SDLK_SPACE:
-              gameContext->togglePause();
+              paused = !paused;
+              break;
           }
           break;
       }
     }
-    if (!gameContext->isPaused()) {
+    if (!paused) {
       updateRegions();
-      gameContext->t++;
+      t++;
     }
     draw();
     disp->update();

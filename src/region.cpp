@@ -1,43 +1,51 @@
 #include "region.h"
 
 #include "display.h"
+#include "game.h"
 #include "agent.h"
 #include "spawner.h"
 #include "square.h"
-#include "team.h"
+
+#include <iostream>
+
+Region::Region(Game* g, int x_, int y_, int s): \
+  Square(s), x(x_), y(y_), containsSpawner(false), game(g), outside(RegionUnit(this)) {
+    containsSpawner = false;
+  regionUnits.reserve(size * size);
+  for (unsigned int i = 0; i < size; i++) {
+    for (unsigned int j = 0; j < size; j++)
+    regionUnits.emplace_back(this, j, i);
+  }
+}
 
 void Region::drawOutline() {
-  disp->drawRect(x, y, size, size);
+  game->disp->drawRect(x, y, size, size);
 }
 
-void Region::drawAgents() {
-  // drawAgents also draws the spawner, if this region contains it
-  if (containsSpawner) {
-    int sx = x + getRadius() - spawn->getRadius();
-    int sy = y + getRadius() - spawn->getRadius();
-    disp->setDrawColor(spawn->team);
-    disp->drawRectFilled(sx, sy, spawn->getSize(), spawn->getSize());
-  }
-  for (Agent* a : agents) {
-    disp->setDrawColor(a->team);
-    disp->drawPixel(a->x, a->y);
+void Region::drawUnits() {
+  for (RegionUnit u: regionUnits) {
+    if (u.type != UNIT_TYPE_EMPTY) {
+      if (u.team) {
+        game->disp->setDrawColor(u.team);
+      } else {
+        game->disp->setDrawColor(255, 255, 255);
+      }
+      game->disp->drawPixel(x + u.regX, y + u.regY);
+    }
   }
 }
 
-void Region::drawAgentsZoomedIn() {
-  // pxScale is also equal to regionsPerSide, maybe put that in game context
-  int pxScale = disp->getSize() / getSize();
-  if (containsSpawner) {
-    int spawnScaledSize = spawn->getSize() * pxScale;
-    int start = disp->getRadius() - (spawnScaledSize / 2);
-    disp->setDrawColor(spawn->team);
-    disp->drawRectFilled(start, start, spawnScaledSize, spawnScaledSize);
-  }
-  for (Agent* a : agents) {
-    disp->setDrawColor(a->team);
-    int ax = (a->x % size) * pxScale;
-    int ay = (a->y % size) * pxScale;
-    disp->drawRectFilled(ax, ay, pxScale, pxScale);
+void Region::drawUnitsZoomedIn() {
+  double scale = game->disp->getSize() / size;
+  for (RegionUnit u : regionUnits) {
+      if (u.type != UNIT_TYPE_EMPTY) {
+        if (u.team) {
+          game->disp->setDrawColor(u.team);
+        } else {
+          game->disp->setDrawColor(u.team);
+        }
+        game->disp->drawRectFilled(u.regX * scale, u.regY * scale, scale, scale);
+      }
   }
 }
 
@@ -45,11 +53,4 @@ void Region::update() {
   if (containsSpawner) {
     spawn->update();
   }
-}
-
-Region::~Region() {
-  for (unsigned int i = 0; i < agents.size(); i++) {
-    delete agents[i];
-  }
-  agents.clear();
 }

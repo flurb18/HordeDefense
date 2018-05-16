@@ -1,21 +1,12 @@
 #ifndef AGENT_H
 #define AGENT_H
 
-// Forward declarations
-class Context;
-class Region;
-struct Team;
+#include "region.h"
 
-class Agent {
-  friend class Region;
-private:
-  unsigned int x, y;
-  Context* gameContext;
-  Region* currentRegion;
+class Agent: public RegionUnit {
 public:
-  const Team* team;
-  Agent(Context* c, Region* r, const Team* t, int x_, int y_):\
-         x(x_), y(y_), gameContext(c), currentRegion(r), team(t) {};
+  Agent(Region* r, const Team* t, int regX, int regY):\
+        RegionUnit(r, t, UNIT_TYPE_AGENT, regX, regY) {};
   void moveRight();
   void moveLeft();
   void moveUp();

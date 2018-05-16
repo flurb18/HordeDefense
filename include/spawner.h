@@ -3,22 +3,23 @@
 
 #include <vector>
 
+#include "game.h"
 #include "square.h"
 
 // Forward declarations
-class Context;
 class Region;
+class Game;
 struct Team;
 
 // A spawner is always at the center of its region
 class Spawner: public Square {
   unsigned int timeToCreateAgent;
-  Context* gameContext;
   Region* region;
   void spawnAgent();
 public:
+  Game* game;
   const Team* team;
-  Spawner(Context*, Region*, const Team*, unsigned int, unsigned int);
+  Spawner(Game*, Region*, const Team*, unsigned int, unsigned int);
   void update();
 };
 

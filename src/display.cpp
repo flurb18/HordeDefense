@@ -4,7 +4,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-#include "team.h"
+#include "game.h"
 
 // Initialize a display, with a window size (square, so width == height)
 Display::Display(int s) : Square(s) {

@@ -8,10 +8,11 @@ IDIR = include
 
 LIBS=-lSDL2 -lSDL2_ttf
 
-_DEPS = agent.h display.h region.h game.h spawner.h context.h square.h team.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o display.o agent.o region.o game.o spawner.o context.o
+DEPS = $(wildcard $(IDIR)/*.h)
+
+SRC = $(wildcard $(SDIR)/*.cpp)
+_OBJ = $(patsubst $(SDIR)/%.cpp, %.o, $(SRC))
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
