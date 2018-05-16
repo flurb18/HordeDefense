@@ -7,6 +7,7 @@ of development.
 
 # To-do list:
 
+- Add menu for beginning of game / in the middle of game
 - add difficulty factor to game context
 - Make Agents able to follow orders (go to region & explore to start); call class
   Mission
