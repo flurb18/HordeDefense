@@ -22,6 +22,8 @@ public:
   void end();
   void setDrawColor(int, int, int);
   void setDrawColor(const Team*);
+  void setDrawColorWhite();
+  void setDrawColorBlack();
   void drawPixel(int, int);
   void drawRect(int, int, int, int);
   void drawRectFilled(int, int, int, int);

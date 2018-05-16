@@ -34,10 +34,9 @@ Display::Display(int s) : Square(s) {
     throw SDL_GetError();
   }
   render = SDL_CreateRenderer(window, -1, 0);
-  SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
   //fontFile = "/usr/share/fonts/TTF/DejaVuSansMono.ttf";
   fontFile = "/usr/share/fonts/TTF/Roboto-Regular.ttf";
-  font = TTF_OpenFont(fontFile, 24);
+  font = TTF_OpenFont(fontFile, 16);
   if (font == NULL) {
     std::cerr << "Font could not be laoded!\n";
     std::cerr << TTF_GetError() << std::endl;
@@ -46,7 +45,7 @@ Display::Display(int s) : Square(s) {
 }
 
 void Display::fillBlack() {
-  setDrawColor(0, 0, 0);
+  setDrawColorBlack();
   // Clear the window with the color
   SDL_RenderClear(render);
 }
@@ -57,6 +56,14 @@ void Display::setDrawColor(int r, int g, int b) {
 
 void Display::setDrawColor(const Team *team) {
   SDL_SetRenderDrawColor(render, team->R, team->B, team->G, 255);
+}
+
+void Display::setDrawColorWhite() {
+  setDrawColor(255, 255, 255);
+}
+
+void Display::setDrawColorBlack() {
+  setDrawColor(0, 0, 0);
 }
 
 void Display::drawPixel(int x, int y) {
@@ -75,7 +82,7 @@ void Display::drawRectFilled(int x, int y, int w, int h) {
 
 void Display::drawText(const char *text, int x, int y) {
   SDL_Color white = {255,255,255};
-  SDL_Surface* surface = TTF_RenderText_Solid(font, text, white);
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text, white);
   SDL_Texture* texture = SDL_CreateTextureFromSurface(render, surface);
   SDL_Rect rect = {x, y, surface->w, surface->h};
   SDL_FreeSurface(surface);

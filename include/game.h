@@ -30,12 +30,8 @@ const Team BLUE_TEAM = Team(3, 0, 0, 255);
 
 class Game {
 private:
-  unsigned int currentRegionIndex, currentUnitIndex;
   Spawner* spawn;
   std::vector<Region*> regions;
-  unsigned int regCoordsToRegIndex(int, int);
-  unsigned int winCoordsToRegIndex(int, int);
-  void regIndexToRegCoords(int, int*, int*);
   void mouseMoved(int, int);
   void leftMouseClicked(int, int);
   void rightMouseClicked(int, int);
@@ -43,8 +39,12 @@ private:
   void updateRegions();
 public:
   unsigned int rSize, rPerSide, context, t;
+  unsigned int currentRegionIndex, currentUnitIndex;
   bool paused;
   Display* disp;
+  unsigned int coordsToSqIndex(int, int, int);
+  unsigned int dispCoordsToSqIndex(int, int, int);
+  void indexToSqCoords(int, int, int*, int*);
   Game(Display*, const int&, const int&);
   ~Game();
   void mainLoop();

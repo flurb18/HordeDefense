@@ -27,37 +27,37 @@ Game::Game(Display* d, const int& s, const int& r):\
     }
   }
   // do something with this
-  Region* centerRegion = regions[winCoordsToRegIndex(disp->getRadius(), disp->getRadius())];
-  spawn = new Spawner(this, centerRegion, &WHITE_TEAM, rSize / 4, 3);
+  Region* centerRegion = regions[dispCoordsToSqIndex(disp->getRadius(), disp->getRadius(), rPerSide)];
+  spawn = new Spawner(this, centerRegion, &WHITE_TEAM, rSize / 8, 3);
 }
 
-unsigned int Game::regCoordsToRegIndex(int regX, int regY) {
-  unsigned int regIndex = regY * rPerSide + regX;
-  if (regIndex >= regions.size()) {
-    std::cerr << "Invalid argument to regCoordsToIndex()" << std::endl;
-    std::cerr << regIndex << std::endl;
-    throw 1;
-  }
-  return regIndex;
+
+/* The following three methods are helper methods to compute the array index of
+   a certain spot in an array, or vice versa*/
+unsigned int Game::coordsToSqIndex(int x, int y, int sqPerSide) {
+  return y * sqPerSide + x;
 }
 
-void Game::regIndexToRegCoords(int index, int *x, int *y) {
-  *x = index % rPerSide;
-  *y = index / rPerSide;
+unsigned int Game::dispCoordsToSqIndex(int x, int y, int sqPerSide) {
+  int sqSize = disp->getSize() / sqPerSide;
+  return coordsToSqIndex(x / sqSize, y / sqSize, sqPerSide);
 }
 
-unsigned int Game::winCoordsToRegIndex(int x, int y) {
-  return regCoordsToRegIndex(x / rSize, y / rSize);
+void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
+  *x = index % sqPerSide;
+  *y = index / sqPerSide;
 }
+
+
 
 void Game::mouseMoved(int x, int y) {
   switch(context) {
     case GAME_CONTEXT_ZOOMED_OUT:
-      currentRegionIndex = winCoordsToRegIndex(x, y);
+      currentRegionIndex = dispCoordsToSqIndex(x, y, rPerSide);
       break;
-    /*case GAME_CONTEXT_ZOOMED_IN:
-      gameContext->setCurrentUnitIndex();
-      break;*/
+    case GAME_CONTEXT_ZOOMED_IN:
+      currentUnitIndex = dispCoordsToSqIndex(x, y, rSize);
+      break;
   }
 }
 
@@ -80,7 +80,7 @@ void Game::draw() {
       for (unsigned int i = 0; i < regions.size(); i++) {
         regions[i]->drawUnits();
         if (i == currentRegionIndex) {
-          disp->setDrawColor(255, 255, 255);
+          disp->setDrawColorWhite();
           regions[i]->drawOutline();
         }
       }
@@ -93,7 +93,7 @@ void Game::draw() {
     disp->drawText("PAUSED", 0, 0);
   }
   int x, y;
-  regIndexToRegCoords(currentRegionIndex, &x, &y);
+  indexToSqCoords(currentRegionIndex, rPerSide, &x, &y);
   const char *s = (std::to_string(x) + ", " + std::to_string(y)).c_str();
   int w, h;
   disp->sizeText(s, &w, &h);
@@ -133,6 +133,7 @@ void Game::mainLoop() {
               rightMouseClicked(x, y);
               break;
           }
+          mouseMoved(x, y);
           break;
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {

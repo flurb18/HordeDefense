@@ -16,8 +16,11 @@ const int UNIT_TYPE_AGENT = 1;
 const int UNIT_TYPE_SPAWNER = 2;
 const int UNIT_TYPE_WALL = 3;
 const int UNIT_TYPE_DOOR = 4;
-const int UNIT_TYPE_OUTSIDE = 10;
+const int UNIT_TYPE_OUTSIDE = 5;
 
+/* Each region is comprised of regionSize x regionSize RegionUnits, and one more
+to represent the "outside" (a dummy, if a unit passes into the outside it needs
+to be moved to another region)*/
 struct RegionUnit {
   unsigned int regX, regY;
   int type;

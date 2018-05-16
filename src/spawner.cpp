@@ -18,7 +18,7 @@ Spawner::Spawner(Game* g, Region* reg, const Team* t, \
 
   for (unsigned int i = start; i < size + start; i++) {
     for (unsigned int j = start; j < start + size; j++) {
-      region->regionUnits[i * size + j] = RegionUnit(region, team, UNIT_TYPE_SPAWNER, j, i);
+      region->regionUnits[i * region->getSize() + j] = RegionUnit(region, team, UNIT_TYPE_SPAWNER, j, i);
     }
   }
 }
