@@ -19,6 +19,15 @@ Region::Region(Game* g, int x_, int y_, int s): \
   }
 }
 
+void Region::update() {
+  if (containsSpawner) {
+    spawn->update();
+  }
+  for (RegionUnit u: regionUnits) {
+    if (u.type == UNIT_TYPE_AGENT) u.update();
+  }
+}
+
 void Region::drawOutline() {
   game->disp->drawRect(x, y, size, size);
 }
@@ -38,29 +47,35 @@ void Region::drawUnits() {
 
 void Region::drawUnitsZoomedIn() {
   /* rPerSide = display size / region size, which is exactly the scale factor
-  that we need to display units in zoomed-in view*/
+  that we need to display units in zoomed-in view */
   int scale = game->rPerSide;
   for (unsigned int i = 0; i < regionUnits.size(); i++) {
     RegionUnit* u = &regionUnits[i];
-      if (u->type != UNIT_TYPE_EMPTY) {
-        if (u->team) {
-          game->disp->setDrawColor(u->team);
-        } else {
-          game->disp->setDrawColorWhite();
-        }
-        int drawX = u->regX * scale;
-        int drawY = u->regY * scale;
-        game->disp->drawRectFilled(drawX, drawY, scale, scale);
-        switch(u->type) {
-          // If spawner, draw 2x2 checkerboard pattern
-          case UNIT_TYPE_SPAWNER:
-            game->disp->setDrawColorBlack();
-            int h = scale/2;
-            game->disp->drawRectFilled(drawX, drawY, h, h);
-            game->disp->drawRectFilled(drawX + h, drawY + h, h, h);
-            break;
-        }
+    int drawX = u->regX * scale;
+    int drawY = u->regY * scale;
+    if (u->type != UNIT_TYPE_EMPTY) {
+      if (u->team) {
+        game->disp->setDrawColor(u->team);
+      } else {
+        game->disp->setDrawColorWhite();
       }
+      /* All units have there team color as a background for their square;
+         Agents have nothing more on top, spawners are 2x2 checkerboards, walls
+         are plus signs, doors are lines indicating their direction */
+      game->disp->drawRectFilled(drawX, drawY, scale, scale);
+      switch(u->type) {
+        case UNIT_TYPE_SPAWNER:
+          game->disp->setDrawColorBlack();
+          int h = scale/2;
+          game->disp->drawRectFilled(drawX, drawY, h, h);
+          game->disp->drawRectFilled(drawX + h, drawY + h, h, h);
+          break;
+      }
+    } else if (i == game->currentUnitIndex) {
+      /* Only draw the selection outline if this region unit is empty */
+      game->disp->setDrawColorWhite();
+      game->disp->drawRect(drawX, drawY, scale, scale);
+    }
   }
   // Also handle the text in bottom left indicating which unit / type
   int x, y, w, h;
@@ -82,10 +97,4 @@ void Region::drawUnitsZoomedIn() {
   }
   game->disp->sizeText(s.c_str(), &w, &h);
   game->disp->drawText(s.c_str(), 0, game->disp->getSize() - h);
-}
-
-void Region::update() {
-  if (containsSpawner) {
-    spawn->update();
-  }
 }
