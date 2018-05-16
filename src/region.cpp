@@ -2,12 +2,11 @@
 
 #include "display.h"
 #include "game.h"
-#include "agent.h"
 #include "spawner.h"
-#include "square.h"
 
-#include <iostream>
+#include <string>
 
+/* Constructor fills the regionUnits vector with empty Region Units */
 Region::Region(Game* g, int x_, int y_, int s): \
   Square(s), x(x_), y(y_), containsSpawner(false), game(g), outside(RegionUnit(this)) {
     containsSpawner = false;
@@ -19,6 +18,8 @@ Region::Region(Game* g, int x_, int y_, int s): \
   }
 }
 
+/* Update the region one tick in game time, which means telling the spawner to
+   update and any updatable units within the region to update */
 void Region::update() {
   if (containsSpawner) {
     spawn->update();
@@ -28,10 +29,12 @@ void Region::update() {
   }
 }
 
+/* Draw the outline of this region in zoomed out view */
 void Region::drawOutline() {
   game->disp->drawRect(x, y, size, size);
 }
 
+/* Draw the Region Units in this region in zoomed out view */
 void Region::drawUnits() {
   for (RegionUnit u: regionUnits) {
     if (u.type != UNIT_TYPE_EMPTY) {
@@ -45,6 +48,7 @@ void Region::drawUnits() {
   }
 }
 
+/* Draw the Region units in this region in zoomed in view */
 void Region::drawUnitsZoomedIn() {
   /* rPerSide = display size / region size, which is exactly the scale factor
   that we need to display units in zoomed-in view */
@@ -78,7 +82,7 @@ void Region::drawUnitsZoomedIn() {
     }
   }
   // Also handle the text in bottom left indicating which unit / type
-  int x, y, w, h;
+  int x, y, h;
   game->indexToSqCoords(game->currentUnitIndex, size, &x, &y);
   std::string s = std::to_string(x) + ", " + std::to_string(y);
   switch(regionUnits[game->currentUnitIndex].type) {
@@ -95,6 +99,6 @@ void Region::drawUnitsZoomedIn() {
       s += " Type: Door";
       break;
   }
-  game->disp->sizeText(s.c_str(), &w, &h);
+  game->disp->sizeText(s.c_str(), nullptr, &h);
   game->disp->drawText(s.c_str(), 0, game->disp->getSize() - h);
 }

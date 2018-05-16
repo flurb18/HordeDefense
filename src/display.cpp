@@ -44,42 +44,51 @@ Display::Display(int s) : Square(s) {
   }
 }
 
+/* Fill the display with black */
 void Display::fillBlack() {
   setDrawColorBlack();
   // Clear the window with the color
   SDL_RenderClear(render);
 }
 
+/* Set the draw color to an rgb triple */
 void Display::setDrawColor(int r, int g, int b) {
   SDL_SetRenderDrawColor(render, r, g, b, 255);
 }
 
+/* Set the draw color to the color of a given team */
 void Display::setDrawColor(const Team *team) {
   SDL_SetRenderDrawColor(render, team->R, team->B, team->G, 255);
 }
 
+/* Set the draw color to white */
 void Display::setDrawColorWhite() {
   setDrawColor(255, 255, 255);
 }
 
+/* Set the draw color to black */
 void Display::setDrawColorBlack() {
   setDrawColor(0, 0, 0);
 }
 
+/* Draw a single pixel at (x,y) */
 void Display::drawPixel(int x, int y) {
   SDL_RenderDrawPoint(render, x, y);
 }
 
+/* Draw a rectangle outline at (x,y) of size (w,h) */
 void Display::drawRect(int x, int y, int w, int h) {
   SDL_Rect rect = {x, y, w, h};
   SDL_RenderDrawRect(render, &rect);
 }
 
+/* Draw a filled in rectangle at (x,y) of size (w,h) */
 void Display::drawRectFilled(int x, int y, int w, int h) {
   SDL_Rect rect = {x, y, w, h};
   SDL_RenderFillRect(render, &rect);
 }
 
+/* Draw the string text at (x,y) using the preloaded font */
 void Display::drawText(const char *text, int x, int y) {
   SDL_Color white = {255,255,255};
   SDL_Surface* surface = TTF_RenderText_Blended(font, text, white);
@@ -90,18 +99,22 @@ void Display::drawText(const char *text, int x, int y) {
   SDL_DestroyTexture(texture);
 }
 
+/* Get what the size of some text will be on the display */
 void Display::sizeText(const char *text, int *w, int *h) {
   TTF_SizeText(font, text, w, h);
 }
 
+/* Refresh the display */
 void Display::update() {
   SDL_RenderPresent(render);
 }
 
+/* Wait t milliseconds */
 void Display::wait(int t) {
   SDL_Delay(t);
 }
 
+/* Destroy all SDL and TTF stuff */
 void Display::end() {
   TTF_Quit();
   SDL_DestroyRenderer(render);

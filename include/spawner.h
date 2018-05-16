@@ -6,14 +6,15 @@
 #include "game.h"
 #include "square.h"
 
-// Forward declarations
+/* Forward declarations */
 class Region;
 class Game;
 struct Team;
 
-// A spawner is always at the center of its region
 class Spawner: public Square {
+  /* How many ticks between Agent spawn attempts */
   unsigned int timeToCreateAgent;
+  /* Region this spawner is in */
   Region* region;
   void spawnAgent();
 public:

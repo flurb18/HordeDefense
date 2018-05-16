@@ -3,18 +3,18 @@
 
 #include "square.h"
 
-// Forward declarations
+/* Forward declarations */
 class SDL_Window;
 class SDL_Renderer;
 typedef struct _TTF_Font TTF_Font;
 struct Team;
 
 class Display: public Square {
-  // Pointers to the SDL window and renderer, and TTF font
+  /* Pointers to the SDL window and renderer, and TTF font */
   SDL_Window* window;
   SDL_Renderer* render;
   TTF_Font* font;
-  // File where font was opened from
+  /* File where font was opened from */
   const char* fontFile;
 public:
   Display(int);

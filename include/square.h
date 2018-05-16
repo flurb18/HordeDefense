@@ -1,7 +1,7 @@
 #ifndef SQUARE_H
 #define SQUARE_H
 
-// Square structure to be extended by various classes
+/* Square structure to be extended by various classes */
 struct Square {
   unsigned int size;
   Square(unsigned int s): size(s) {};

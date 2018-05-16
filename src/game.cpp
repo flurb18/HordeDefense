@@ -8,6 +8,7 @@
 #include "region.h"
 #include "spawner.h"
 
+/* Constructor sets up regions, creates a friendly spawner */
 Game::Game(Display* d, const int& s, const int& r):\
            rSize(s), rPerSide(r), disp(d) {
   context = GAME_CONTEXT_ZOOMED_OUT;
@@ -27,7 +28,7 @@ Game::Game(Display* d, const int& s, const int& r):\
     }
   }
   // do something with this
-  Region* centerRegion = regions[dispCoordsToSqIndex(disp->getRadius(), disp->getRadius(), rPerSide)];
+  Region* centerRegion = regions[coordsToSqIndex(rPerSide/2, rPerSide/2, rPerSide)];
   spawn = new Spawner(this, centerRegion, &WHITE_TEAM, rSize / 8, 3);
 }
 
@@ -48,8 +49,7 @@ void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
   *y = index / sqPerSide;
 }
 
-
-
+/* Handle a mouse moved to (x,y) */
 void Game::mouseMoved(int x, int y) {
   switch(context) {
     case GAME_CONTEXT_ZOOMED_OUT:
@@ -61,18 +61,21 @@ void Game::mouseMoved(int x, int y) {
   }
 }
 
+/* Handle a left mouse click at (x,y) */
 void Game::leftMouseClicked(int x, int y) {
   if (context == GAME_CONTEXT_ZOOMED_OUT) {
     context = GAME_CONTEXT_ZOOMED_IN;
   }
 }
 
+/* Handle a right mouse click at (x,y) */
 void Game::rightMouseClicked(int x, int y) {
   if (context == GAME_CONTEXT_ZOOMED_IN) {
     context = GAME_CONTEXT_ZOOMED_OUT;
   }
 }
 
+/* Draw the current game screen based on context */
 void Game::draw() {
   disp->fillBlack();
   switch(context) {
@@ -92,20 +95,26 @@ void Game::draw() {
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
+  // Display coordinates of current region selection
   int x, y;
   indexToSqCoords(currentRegionIndex, rPerSide, &x, &y);
   const char *s = (std::to_string(x) + ", " + std::to_string(y)).c_str();
-  int w, h;
-  disp->sizeText(s, &w, &h);
+  int w;
+  disp->sizeText(s, &w, nullptr);
   disp->drawText(s, disp->getSize() - w, 0);
 }
 
+/* Advance each region in game time, which means updating the units in each
+   region; if the region contains a spawner it will check if should spawn
+   an agent, and attempt to */
 void Game::updateRegions() {
   for (unsigned int i = 0; i < regions.size(); i++) {
     regions[i]->update();
   }
 }
 
+/* Main loop of the game; largely just handles events, calls draw() and updateRegions
+   the display */
 void Game::mainLoop() {
   SDL_Event e;
   int x, y;
@@ -118,6 +127,7 @@ void Game::mainLoop() {
         context = GAME_CONTEXT_EXIT;
         break;
       }
+      /* Handle other events case by case */
       switch(e.type) {
         case SDL_MOUSEMOTION:
           SDL_GetMouseState(&x, &y);
@@ -159,4 +169,5 @@ Game::~Game() {
     delete regions[i];
   }
   regions.clear();
+  delete spawn;
 }

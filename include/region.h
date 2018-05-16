@@ -5,7 +5,7 @@
 
 #include "square.h"
 
-// Forward declarations
+/* Forward declarations */
 class Region;
 class Game;
 class Spawner;
@@ -35,11 +35,15 @@ struct RegionUnit {
              regX(x_), regY(y_), type(UNIT_TYPE_EMPTY), region(r) {};
   RegionUnit(Region* r, const Team* t, int type_, int x_, int y_):\
              regX(x_), regY(y_), type(type_), team(t), region(r) {};
+  /* Method to be overriden by, say, Agents */
   virtual void update() {};
 };
 
 class Region: public Square {
+  /* Let Spawner modify private fields of this class (i.e. regionUnits,
+  containsSpawner) */
   friend class Spawner;
+private:
   int x, y;
   bool containsSpawner;
   Game* game;
