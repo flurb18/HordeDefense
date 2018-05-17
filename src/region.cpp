@@ -1,10 +1,12 @@
 #include "region.h"
 
+#include "agent.h"
 #include "display.h"
 #include "game.h"
 #include "spawner.h"
 
 #include <string>
+#include <iostream>
 
 /* Constructor fills the regionUnits vector with empty Region Units */
 Region::Region(Game* g, int x_, int y_, int s): \
@@ -24,8 +26,8 @@ void Region::update() {
   if (containsSpawner) {
     spawn->update();
   }
-  for (RegionUnit u: regionUnits) {
-    if (u.type == UNIT_TYPE_AGENT) u.update();
+  for (Agent* a: agents) {
+    a->update();
   }
 }
 

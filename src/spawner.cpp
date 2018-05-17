@@ -11,7 +11,7 @@
    and creates region units where the spawner is */
 Spawner::Spawner(Game* g, Region* reg, const Team* t, \
                  unsigned int s, unsigned int t_) : \
-                Square(s), timeToCreateAgent(t_), region(reg), \
+                Square(s), timeToCreateAgent(t_), paths(g, reg), region(reg), \
                 game(g), team(t) {
   region->containsSpawner = true;
   region->spawn = this;
@@ -56,6 +56,25 @@ void Spawner::spawnAgent() {
   /* Check if we can actually spawn an agent in the desired space; if not, just
      don't do it (clear your spawn region!) */
   if (region->regionUnits[regionUnitIndex].type == UNIT_TYPE_EMPTY) {
-    region->regionUnits[regionUnitIndex] = Agent(region, team, spawnX, spawnY);
+    region->regionUnits[regionUnitIndex] = RegionUnit(region, team, UNIT_TYPE_AGENT, spawnX, spawnY);
+    RegionUnit* uptr = &(region->regionUnits[regionUnitIndex]);
+    Agent* a = new Agent(&paths, uptr, team);
+    region->agents.push_back(a);
+    uptr->agent = a;
+  //  a->dx = 1;
+    switch(whichSide) {
+      case 0:
+        a->dx = 1;
+        break;
+      case 1:
+        a->dy = 1;
+        break;
+      case 2:
+        a->dx = -1;
+        break;
+      case 3:
+        a->dy = -1;
+        break;
+    }
   }
 }

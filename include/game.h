@@ -22,7 +22,7 @@ struct Team {
   int G;
   int B;
   Team(int t, int r, int g, int b): teamNum(t), R(r), G(g), B(b) {};
-  bool equals(Team that) {return this->teamNum == that.teamNum;};
+  bool equals(const Team* that) const {return this->teamNum == that->teamNum;};
 };
 
 /* Predefined teams */

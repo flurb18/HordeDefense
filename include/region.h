@@ -6,6 +6,7 @@
 #include "square.h"
 
 /* Forward declarations */
+class Agent;
 class Region;
 class Game;
 class Spawner;
@@ -21,10 +22,12 @@ const int UNIT_TYPE_OUTSIDE = 5;
 /* Each region is comprised of regionSize x regionSize RegionUnits, and one more
 to represent the "outside" (a dummy, if a unit passes into the outside it needs
 to be moved to another region)*/
-struct RegionUnit {
+class RegionUnit {
+public:
   unsigned int regX, regY;
   int type;
   const Team* team;
+  Agent* agent;
   Region* region;
   RegionUnit* left;
   RegionUnit* right;
@@ -42,6 +45,8 @@ struct RegionUnit {
 class Region: public Square {
   /* Let Spawner modify private fields of this class (i.e. regionUnits,
   containsSpawner) */
+  friend class Agent;
+  friend class Paths;
   friend class Spawner;
 private:
   int x, y;
@@ -49,6 +54,7 @@ private:
   Game* game;
   Spawner* spawn;
   std::vector<RegionUnit> regionUnits;
+  std::vector<Agent*> agents;
   RegionUnit outside;
 public:
   Region(Game*, int, int, int);
