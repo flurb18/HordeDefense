@@ -24,7 +24,7 @@ Game::Game(Display* d, const int& s, const int& r):\
   down respectively*/
   for (unsigned int i = 0; i < rPerSide; i++) {
     for (unsigned int j = 0; j < rPerSide; j++) {
-      regions.push_back(new Region(this, j*rSize, i*rSize, rSize));
+      regions.push_back(new Region(this, j*rSize, i*rSize, rSize, i * rPerSide + j));
     }
   }
   // do something with this

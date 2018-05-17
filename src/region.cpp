@@ -9,9 +9,10 @@
 #include <iostream>
 
 /* Constructor fills the regionUnits vector with empty Region Units */
-Region::Region(Game* g, int x_, int y_, int s): \
+Region::Region(Game* g, int x_, int y_, int s, int ind): \
   Square(s), x(x_), y(y_), containsSpawner(false), game(g), outside(RegionUnit(this)) {
-    containsSpawner = false;
+  index = ind;
+  containsSpawner = false;
   regionUnits.reserve(size * size);
   for (unsigned int i = 0; i < size; i++) {
     for (unsigned int j = 0; j < size; j++) {
@@ -23,10 +24,14 @@ Region::Region(Game* g, int x_, int y_, int s): \
 /* Update the region one tick in game time, which means telling the spawner to
    update and any updatable units within the region to update */
 void Region::update() {
+  std::set<Agent*> agents;
   if (containsSpawner) {
     spawn->update();
   }
-  for (Agent* a: agents) {
+  for (RegionUnit u: regionUnits) {
+    if (u.type == UNIT_TYPE_AGENT) agents.insert(u.agent);
+  }
+  for (Agent* a : agents) {
     a->update();
   }
 }

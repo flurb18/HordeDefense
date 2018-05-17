@@ -34,7 +34,6 @@ const Team BLUE_TEAM = Team(3, 0, 0, 255);
 class Game {
 private:
   Spawner* spawn;
-  std::vector<Region*> regions;
   void mouseMoved(int, int);
   void leftMouseClicked(int, int);
   void rightMouseClicked(int, int);
@@ -48,6 +47,7 @@ public:
   unsigned int currentRegionIndex, currentUnitIndex;
   /* Whether or not the game is currently paused */
   bool paused;
+  std::vector<Region*> regions;
   Display* disp;
   unsigned int coordsToSqIndex(int, int, int);
   unsigned int dispCoordsToSqIndex(int, int, int);

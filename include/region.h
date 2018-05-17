@@ -2,6 +2,7 @@
 #define REGION_H
 
 #include <vector>
+#include <set>
 
 #include "square.h"
 
@@ -49,15 +50,14 @@ class Region: public Square {
   friend class Paths;
   friend class Spawner;
 private:
-  int x, y;
+  int x, y, index;
   bool containsSpawner;
   Game* game;
   Spawner* spawn;
   std::vector<RegionUnit> regionUnits;
-  std::vector<Agent*> agents;
   RegionUnit outside;
 public:
-  Region(Game*, int, int, int);
+  Region(Game*, int, int, int, int);
   void drawUnits();
   void drawUnitsZoomedIn();
   void drawOutline();

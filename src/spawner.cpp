@@ -58,8 +58,7 @@ void Spawner::spawnAgent() {
   if (region->regionUnits[regionUnitIndex].type == UNIT_TYPE_EMPTY) {
     region->regionUnits[regionUnitIndex] = RegionUnit(region, team, UNIT_TYPE_AGENT, spawnX, spawnY);
     RegionUnit* uptr = &(region->regionUnits[regionUnitIndex]);
-    Agent* a = new Agent(&paths, uptr, team);
-    region->agents.push_back(a);
+    Agent* a = new Agent(game, &paths, uptr, team);
     uptr->agent = a;
   //  a->dx = 1;
     switch(whichSide) {
