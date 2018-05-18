@@ -6,12 +6,6 @@
 class Game;
 class Region;
 
-struct WeightedEdge {
-  int from;
-  int to;
-  float weight;
-};
-
 class Paths {
 private:
   Game* game;

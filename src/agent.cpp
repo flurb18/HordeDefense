@@ -48,6 +48,12 @@ bool Agent::moveTo(Region* destRegion, int destX, int destY) {
   return true;
 }
 
+bool Agent::moveTo(RegionUnit* destUnit) {
+  if (destUnit->type == UNIT_TYPE_OUTSIDE) return false;
+  if (destUnit->type != UNIT_TYPE_EMPTY) return false;
+  return true;
+}
+
 /* Attempts to move the agent; returns true if successful, false otherwise */
 bool Agent::move() {
   if (dx == 0 && dy == 0) return false;

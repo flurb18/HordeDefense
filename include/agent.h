@@ -26,6 +26,7 @@ private:
   const Team* team;
   bool move();
   bool moveTo(Region*, int, int);
+  bool moveTo(RegionUnit*);
 public:
   Agent(Game*, Paths*, RegionUnit*, const Team*);
   virtual void update();

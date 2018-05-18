@@ -19,6 +19,19 @@ Region::Region(Game* g, int x_, int y_, int s, int ind): \
       regionUnits.emplace_back(this, j, i);
     }
   }
+  for (unsigned int i = 0; i < size; i++) {
+    for (unsigned int j = 0; j < size; j++) {
+      int index = game->coordsToSqIndex(j, i, size);
+      if (i == 0) regionUnits[index].up = &outside;
+      else regionUnits[index].up = &regionUnits[index - size];
+      if (i == size - 1) regionUnits[index].down = &outside;
+      else regionUnits[index].down = &regionUnits[index + size];
+      if (j == 0) regionUnits[index].left = &outside;
+      else regionUnits[index].left = &regionUnits[index - 1];
+      if (j == size - 1) regionUnits[index].right = &outside;
+      else regionUnits[index].right = &regionUnits[index + 1];
+    }
+  }
 }
 
 /* Update the region one tick in game time, which means telling the spawner to
