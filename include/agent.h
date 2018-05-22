@@ -1,11 +1,10 @@
 #ifndef AGENT_H
 #define AGENT_H
 
-#include "region.h"
-
 /* Forward Declarations */
+class Game;
 class Paths;
-class RegionUnit;
+class MapUnit;
 struct Team;
 
 const int OBJECTIVE_TYPE_WAIT = 0;
@@ -18,18 +17,18 @@ const int OBJECTIVE_TYPE_CHARGE = 4;
 class Agent {
   friend class Spawner;
 private:
-  int index, objective, dx, dy;
+  int objective, dx, dy;
+  unsigned long long lastUpdatedTimestamp;
   Game* game;
-  Region* region;
-  RegionUnit* rUnit;
+  MapUnit* unit;
   Paths* paths;
   const Team* team;
   bool move();
-  bool moveTo(Region*, int, int);
-  bool moveTo(RegionUnit*);
+  bool moveTo(MapUnit*);
+  MapUnit* getDestUnit();
 public:
-  Agent(Game*, Paths*, RegionUnit*, const Team*);
-  virtual void update();
+  Agent(Game*, Paths*, MapUnit*, const Team*);
+  void update();
 };
 
 #endif

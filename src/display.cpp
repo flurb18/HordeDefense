@@ -82,6 +82,11 @@ void Display::drawRect(int x, int y, int w, int h) {
   SDL_RenderDrawRect(render, &rect);
 }
 
+/* Draw the SDL rectangle */
+void Display::drawRect(SDL_Rect* r) {
+  SDL_RenderDrawRect(render, r);
+}
+
 /* Draw a filled in rectangle at (x,y) of size (w,h) */
 void Display::drawRectFilled(int x, int y, int w, int h) {
   SDL_Rect rect = {x, y, w, h};

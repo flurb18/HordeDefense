@@ -19,13 +19,13 @@ private:
   /* Paths object for agent newborns */
   Paths paths;
   /* Region this spawner is in */
-  Region* region;
+  MapUnit* topLeft;
   void spawnAgent();
 
 public:
   Game* game;
   const Team* team;
-  Spawner(Game*, Region*, const Team*, unsigned int, unsigned int);
+  Spawner(Game*, MapUnit*, const Team*, unsigned int, unsigned int);
   void update();
 };
 

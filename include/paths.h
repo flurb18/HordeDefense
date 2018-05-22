@@ -5,15 +5,15 @@
 
 class Game;
 class Region;
+class MapUnit;
 
 class Paths {
 private:
   Game* game;
-  std::vector<Region *> knownRegions;
   std::vector<bool> visible;
   void addRegion(Region*);
 public:
-  Paths(Game*, Region*);
+  Paths(Game*, MapUnit*);
 };
 
 #endif

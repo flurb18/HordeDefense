@@ -5,23 +5,22 @@
 
 #include "agent.h"
 #include "game.h"
-#include "region.h"
 
 /* Constructor of the spawner also tells the argument region that it has a spawner,
    and creates region units where the spawner is */
-Spawner::Spawner(Game* g, Region* reg, const Team* t, \
-                 unsigned int s, unsigned int t_) : \
-                Square(s), timeToCreateAgent(t_), paths(g, reg), region(reg), \
-                game(g), team(t) {
-  region->containsSpawner = true;
-  region->spawn = this;
+Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
+                 unsigned int s, unsigned int t_) : Square(s), \
+                 timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
   srand(time(0));
-  int start = region->getRadius() - getRadius();
-
-  for (unsigned int i = start; i < size + start; i++) {
-    for (unsigned int j = start; j < start + size; j++) {
-      region->regionUnits[i * region->getSize() + j] = RegionUnit(region, team, UNIT_TYPE_SPAWNER, j, i);
+  MapUnit* firstInRow = topLeft;
+  MapUnit* current = topLeft;
+  for (unsigned int i = 0; i < size && firstInRow->type != UNIT_TYPE_OUTSIDE; i++) {
+    for (unsigned int j = 0; j < size && current->type != UNIT_TYPE_OUTSIDE; j++) {
+      current->type = UNIT_TYPE_SPAWNER;
+      current = current->right;
     }
+    firstInRow = firstInRow->down;
+    current = firstInRow;
   }
 }
 
@@ -43,8 +42,8 @@ void Spawner::spawnAgent() {
   int relY = rand() % getSize();
   int whichSide = rand() % 4;
   // set spawnX and spawnY to be relX,Y from the top corner of the spawner
-  int spawnX = relX + region->getRadius() - getRadius();
-  int spawnY = relY + region->getRadius() - getRadius();
+  int spawnX = relX + topLeft->x;
+  int spawnY = relY + topLeft->y;
   /* Then depending on which side we want to spawn on, spawnx or spawnY will
      either increment or decrement by the size of the spawner */
   int s = getSize();
@@ -52,15 +51,12 @@ void Spawner::spawnAgent() {
   int spawnIncrementOptions[4][2] = {{s, 0}, {0, s}, {ns, 0}, {0, ns}};
   spawnX += spawnIncrementOptions[whichSide][0];
   spawnY += spawnIncrementOptions[whichSide][1];
-  int regionUnitIndex = spawnY * region->getSize() + spawnX;
+  int spawnUnitIndex = game->coordsToSqIndex(spawnX, spawnY, game->getSize());
   /* Check if we can actually spawn an agent in the desired space; if not, just
      don't do it (clear your spawn region!) */
-  if (region->regionUnits[regionUnitIndex].type == UNIT_TYPE_EMPTY) {
-    region->regionUnits[regionUnitIndex] = RegionUnit(region, team, UNIT_TYPE_AGENT, spawnX, spawnY);
-    RegionUnit* uptr = &(region->regionUnits[regionUnitIndex]);
+  if (game->mapunits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
+    MapUnit* uptr = game->mapunits[spawnUnitIndex];
     Agent* a = new Agent(game, &paths, uptr, team);
-    uptr->agent = a;
-  //  a->dx = 1;
     switch(whichSide) {
       case 0:
         a->dx = 1;

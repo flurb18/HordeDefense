@@ -1,35 +1,48 @@
 #include "game.h"
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_rect.h>
 #include <iostream>
 #include <string>
 
+#include "agent.h"
 #include "display.h"
-#include "region.h"
 #include "spawner.h"
 
+
 /* Constructor sets up regions, creates a friendly spawner */
-Game::Game(Display* d, const int& s, const int& r):\
-           rSize(s), rPerSide(r), disp(d) {
-  context = GAME_CONTEXT_ZOOMED_OUT;
-  currentRegionIndex = 0;
-  currentUnitIndex = 0;
-  t = 0;
-  paused = true;
-  // Regions is a vector
-  regions.reserve(rPerSide * rPerSide);
-  /* Regions are created in the x direction; it fills the top row with regions
+Game::Game(Display* d): Square(d->getSize()), \
+                        context(GAME_CONTEXT_ZOOMED_OUT), t(0), paused(true), disp(d), outside(this) {
+  /* mapunits is a vector */
+  mapunits.reserve(size * size);
+  /* Units are created in the x direction; it fills the top row with regions
   from left to right, then the next row and so on
   SDL window x and y start at 0 at top left and increase right and
   down respectively*/
-  for (unsigned int i = 0; i < rPerSide; i++) {
-    for (unsigned int j = 0; j < rPerSide; j++) {
-      regions.push_back(new Region(this, j*rSize, i*rSize, rSize, i * rPerSide + j));
+  outside = MapUnit(this);
+  for (unsigned int i = 0; i < size; i++) {
+    for (unsigned int j = 0; j < size; j++) {
+      mapunits.push_back(new MapUnit(this, j, i));
     }
   }
+  for (unsigned int i = 0; i < size; i++) {
+    for (unsigned int j = 0; j < size; j++) {
+      int index = coordsToSqIndex(j, i, size);
+      if (i == 0) mapunits[index]->up = &outside;
+      else mapunits[index]->up = mapunits[index - size];
+      if (i == size - 1) mapunits[index]->down = &outside;
+      else mapunits[index]->down = mapunits[index + size];
+      if (j == 0) mapunits[index]->left = &outside;
+      else mapunits[index]->left = mapunits[index - 1];
+      if (j == size - 1) mapunits[index]->right = &outside;
+      else mapunits[index]->right = mapunits[index + 1];
+    }
+  }
+
+  selection = {0, 0, size, size};
   // do something with this
-  Region* centerRegion = regions[coordsToSqIndex(rPerSide/2, rPerSide/2, rPerSide)];
-  spawn = new Spawner(this, centerRegion, &WHITE_TEAM, rSize / 8, 3);
+  MapUnit* spawnUnit = mapunits[size/2 * size + size/2];
+  spawn = new Spawner(this, spawnUnit, &WHITE_TEAM, 8, 3);
 }
 
 
@@ -52,11 +65,19 @@ void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
 /* Handle a mouse moved to (x,y) */
 void Game::mouseMoved(int x, int y) {
   switch(context) {
+    unsigned int adjustedX, adjustedY;
     case GAME_CONTEXT_ZOOMED_OUT:
-      currentRegionIndex = dispCoordsToSqIndex(x, y, rPerSide);
+      adjustedX = x - (selection.w / 2);
+      adjustedY = y - (selection.h / 2);
+      if (adjustedX < 0) adjustedX = 0;
+      if (adjustedY < 0) adjustedY = 0;
+      if (adjustedX > size - 1) adjustedX = size- 1;
+      if (adjustedY > size - 1) adjustedY = size - 1;
+      selection.x = adjustedX;
+      selection.y = adjustedY;
       break;
     case GAME_CONTEXT_ZOOMED_IN:
-      currentUnitIndex = dispCoordsToSqIndex(x, y, rSize);
+      //TODO
       break;
   }
 }
@@ -80,25 +101,40 @@ void Game::draw() {
   disp->fillBlack();
   switch(context) {
     case GAME_CONTEXT_ZOOMED_OUT:
-      for (unsigned int i = 0; i < regions.size(); i++) {
-        regions[i]->drawUnits();
-        if (i == currentRegionIndex) {
-          disp->setDrawColorWhite();
-          regions[i]->drawOutline();
+      for (MapUnit* u : mapunits) {
+        if (u->type != UNIT_TYPE_EMPTY){
+          if (u->team) disp->setDrawColor(u->team);
+          else disp->setDrawColorWhite();
+          disp->drawPixel(u->x, u->y);
         }
       }
+      disp->setDrawColorWhite();
+      disp->drawRect(&selection);
       break;
     case GAME_CONTEXT_ZOOMED_IN:
-      regions[currentRegionIndex]->drawUnitsZoomedIn();
+      MapUnit* firstInRow = mapunits[coordsToSqIndex(selection.x, selection.y, size)];
+      MapUnit* u = firstInRow;
+      for (int i = 0; i < selection.h && firstInRow->type != UNIT_TYPE_OUTSIDE; i++) {
+        for (int j = 0; j < selection.w && u->type != UNIT_TYPE_OUTSIDE; j++) {
+          if (u->type != UNIT_TYPE_EMPTY) {
+            if (u->team) disp->setDrawColor(u->team);
+            else disp->setDrawColorWhite();
+            int scale = size / selection.w;
+            disp->drawRectFilled((u->x - selection.x) * scale,
+                                 (u->y - selection.y) * scale, scale, scale);
+          }
+          u = u->right;
+        }
+        firstInRow = firstInRow->down;
+        u = firstInRow;
+      }
       break;
   }
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
   // Display coordinates of current region selection
-  int x, y;
-  indexToSqCoords(currentRegionIndex, rPerSide, &x, &y);
-  const char *s = (std::to_string(x) + ", " + std::to_string(y)).c_str();
+  const char *s = (std::to_string(selection.x) + ", " + std::to_string(selection.y)).c_str();
   int w;
   disp->sizeText(s, &w, nullptr);
   disp->drawText(s, disp->getSize() - w, 0);
@@ -107,10 +143,13 @@ void Game::draw() {
 /* Advance each region in game time, which means updating the units in each
    region; if the region contains a spawner it will check if should spawn
    an agent, and attempt to */
-void Game::updateRegions() {
-  for (unsigned int i = 0; i < regions.size(); i++) {
-    regions[i]->update();
+void Game::update() {
+  for (MapUnit* u: mapunits) {
+    if (u->type == UNIT_TYPE_AGENT) {
+      u->agent->update();
+    }
   }
+  spawn->update();
 }
 
 /* Main loop of the game; largely just handles events, calls draw() and updateRegions
@@ -128,9 +167,9 @@ void Game::mainLoop() {
         break;
       }
       /* Handle other events case by case */
+      SDL_GetMouseState(&x, &y);
       switch(e.type) {
         case SDL_MOUSEMOTION:
-          SDL_GetMouseState(&x, &y);
           mouseMoved(x, y);
           break;
         case SDL_MOUSEBUTTONDOWN:
@@ -150,24 +189,39 @@ void Game::mainLoop() {
             case SDLK_SPACE:
               paused = !paused;
               break;
+            case SDLK_UP:
+              selection.w*=2;
+              selection.h*=2;
+              if (selection.h > size) selection.h = size;
+              if (selection.w > size) selection.w = size;
+              mouseMoved(x, y);
+              break;
+            case SDLK_DOWN:
+              selection.w/=2;
+              selection.h/=2;
+              if (selection.w < 1) selection.w = 1;
+              if (selection.h < 1) selection.h = 1;
+              mouseMoved(x, y);
+              break;
           }
           break;
       }
     }
     if (!paused) {
-      updateRegions();
+      update();
       t++;
     }
     draw();
     disp->update();
-    disp->wait(10);
+    //disp->wait(10);
   }
 }
 
 Game::~Game() {
-  for (unsigned int i = 0; i < regions.size(); i++) {
-    delete regions[i];
+  for (unsigned int i = 0; i < mapunits.size(); i++) {
+    if (mapunits[i]->agent) delete mapunits[i]->agent;
+    delete mapunits[i];
   }
-  regions.clear();
+  mapunits.clear();
   delete spawn;
 }

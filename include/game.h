@@ -2,6 +2,10 @@
 #define GAME_H
 
 #include <vector>
+#include <SDL2/SDL_rect.h>
+
+#include "mapunit.h"
+#include "square.h"
 
 /* Forward declarations */
 class Context;
@@ -31,28 +35,28 @@ const Team RED_TEAM = Team(1, 255, 0, 0);
 const Team GREEN_TEAM = Team(2, 0, 255, 0);
 const Team BLUE_TEAM = Team(3, 0, 0, 255);
 
-class Game {
+class Game: public Square {
 private:
   Spawner* spawn;
   void mouseMoved(int, int);
   void leftMouseClicked(int, int);
   void rightMouseClicked(int, int);
   void draw();
-  void updateRegions();
+  void update();
 public:
-  unsigned int rSize, rPerSide, context;
+  int context;
   /* Game ticks since this object was created */
   unsigned long long t;
-  /* Currently selected region / unit (depending on context) */
-  unsigned int currentRegionIndex, currentUnitIndex;
   /* Whether or not the game is currently paused */
   bool paused;
-  std::vector<Region*> regions;
+  SDL_Rect selection;
+  std::vector<MapUnit*> mapunits;
   Display* disp;
+  MapUnit outside;
   unsigned int coordsToSqIndex(int, int, int);
   unsigned int dispCoordsToSqIndex(int, int, int);
   void indexToSqCoords(int, int, int*, int*);
-  Game(Display*, const int&, const int&);
+  Game(Display*);
   ~Game();
   void mainLoop();
 };

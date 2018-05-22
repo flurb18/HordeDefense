@@ -6,6 +6,7 @@
 /* Forward declarations */
 class SDL_Window;
 class SDL_Renderer;
+class SDL_Rect;
 typedef struct _TTF_Font TTF_Font;
 struct Team;
 
@@ -26,6 +27,7 @@ public:
   void setDrawColorBlack();
   void drawPixel(int, int);
   void drawRect(int, int, int, int);
+  void drawRect(SDL_Rect*);
   void drawRectFilled(int, int, int, int);
   void drawText(const char*, int, int);
   void sizeText(const char*, int*, int*);

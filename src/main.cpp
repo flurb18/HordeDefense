@@ -3,12 +3,11 @@
 
 
 int main(int argc, char* argv[]) {
-  const int REG_SIZE = 32;
-  const int REG_PER_SIDE = 20;
-  const int WIN_SIZE = REG_SIZE * REG_PER_SIDE;
+
+  const int WIN_SIZE = 640;
 
   Display d = Display(WIN_SIZE);
-  Game g = Game(&d, REG_SIZE, REG_PER_SIDE);
+  Game g = Game(&d);
   g.mainLoop();
   d.end();
 }

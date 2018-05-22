@@ -5,19 +5,22 @@
 #include <set>
 
 #include "game.h"
-#include "region.h"
+#include "mapunit.h"
 
-Agent::Agent(Game* g, Paths* p, RegionUnit* r, const Team* t):
-             game(g), region(r->region), rUnit(r), paths(p), team(t) {
-  index = game->coordsToSqIndex(rUnit->regX, rUnit->regY, region->size);
+Agent::Agent(Game* g, Paths* p, MapUnit* m, const Team* t):
+             game(g), unit(m), paths(p), team(t) {
   paths = p;
   objective = OBJECTIVE_TYPE_EXPLORE;
   dx = 0;
   dy = 0;
+  unit->agent = this;
+  unit->type = UNIT_TYPE_AGENT;
 }
 
 /* Update agent based on objective */
 void Agent::update() {
+  if (lastUpdatedTimestamp == game->t) return;
+  lastUpdatedTimestamp = game->t;
   switch(objective) {
     case OBJECTIVE_TYPE_EXPLORE:
       //TODO
@@ -32,77 +35,43 @@ void Agent::update() {
   }
 }
 
-bool Agent::moveTo(Region* destRegion, int destX, int destY) {
-  int destIndex = game->coordsToSqIndex(destX, destY, game->rSize);
-  RegionUnit* destUnit = &destRegion->regionUnits[destIndex];
+bool Agent::moveTo(MapUnit* destUnit) {
+  if (destUnit->type == UNIT_TYPE_OUTSIDE) return false;
   if (destUnit->type != UNIT_TYPE_EMPTY) return false;
-  rUnit->type = UNIT_TYPE_EMPTY;
-  rUnit->agent = nullptr;
-  rUnit->team = nullptr;
   destUnit->type = UNIT_TYPE_AGENT;
   destUnit->agent = this;
   destUnit->team = team;
-  rUnit = destUnit;
-  index = destIndex;
-  region = destRegion;
+  unit->type = UNIT_TYPE_EMPTY;
+  unit->agent = nullptr;
+  unit->team = nullptr;
+  unit = destUnit;
   return true;
 }
 
-bool Agent::moveTo(RegionUnit* destUnit) {
-  if (destUnit->type == UNIT_TYPE_OUTSIDE) return false;
-  if (destUnit->type != UNIT_TYPE_EMPTY) return false;
-  return true;
+MapUnit* Agent::getDestUnit() {
+  if (dx > 0) return unit->right;
+  if (dx < 0) return unit->left;
+  if (dy > 0) return unit->down;
+  if (dy < 0) return unit->up;
+  return unit;
 }
 
 /* Attempts to move the agent; returns true if successful, false otherwise */
 bool Agent::move() {
   if (dx == 0 && dy == 0) return false;
-  int destX = rUnit->regX + dx;
-  int destY = rUnit->regY + dy;
-  /* Handle the 4 cases of the agent moving out of the region */
-  int max = region->getSize() - 1;
-  if (destX < 0 || destX > max || destY < 0 || destY > max) {
-    int destRegionX, destRegionY;
-    int rPerSide = game->rPerSide;
-    game->indexToSqCoords(region->index, rPerSide, &destRegionX, &destRegionY);
-    if (destX < 0) {
-      destRegionX--;
-      destX = max;
-    }
-    if (destX > max) {
-      destRegionX++;
-      destX = 0;
-    }
-    if (destY < 0) {
-      destRegionY--;
-      destY = max;
-    }
-    if (destY > max) {
-      destRegionY++;
-      destY = 0;
-    }
-    if (destRegionX < 0 || destRegionY < 0 ||\
-        destRegionX >= rPerSide || destRegionY >= rPerSide) return false;
-    Region* destReg = game->regions[game->coordsToSqIndex(destRegionX, destRegionY, rPerSide)];
-    return moveTo(destReg, destX, destY);
-  }
-  /* Otherwise, the agent will still be inside the region; check if the space is
-     occupied */
-  int destIndex = region->game->coordsToSqIndex(destX, destY, region->size);
-  RegionUnit* destUnit = &(region->regionUnits[destIndex]);
+  MapUnit* destUnit = getDestUnit();
   if (destUnit->type != UNIT_TYPE_EMPTY) {
     if (destUnit->type == UNIT_TYPE_DOOR) {
       if (team == destUnit->team) {
-        if (dx) dx = 2;
-        if (dy) dy = 2;
-        bool moved = move();
-        if (dx) dx = 1;
-        if (dy) dy = 1;
-        return moved;
+        if (dx > 0) destUnit = destUnit->right;
+        if (dx < 0) destUnit = destUnit->left;
+        if (dy > 0) destUnit = destUnit->down;
+        if (dy < 0) destUnit = destUnit->up;
+        return moveTo(destUnit);
       }
     }
     return false;
   }
   // Switch around the two region units, which just means exchanging their data
-  return moveTo(region, destX, destY);
+  return moveTo(destUnit);
 }
