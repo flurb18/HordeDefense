@@ -14,7 +14,3 @@ MapUnit::MapUnit(Game* g, const Team* t, int type_, int x_, int y_): \
              x(x_), y(y_), type(type_), game(g), team(t) {
   index = game->coordsToSqIndex(x, y, game->getSize());
 }
-
-MapUnit::~MapUnit() {
-  if (agent) delete agent;
-}

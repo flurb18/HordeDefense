@@ -3,13 +3,13 @@
 
 #include <vector>
 
-#include "game.h"
 #include "square.h"
 #include "paths.h"
 
 /* Forward declarations */
-class Region;
+class Agent;
 class Game;
+struct MapUnit;
 struct Team;
 
 class Spawner: public Square {
@@ -18,6 +18,8 @@ private:
   unsigned int timeToCreateAgent;
   /* Paths object for agent newborns */
   Paths paths;
+  /* Agents spawned/updated by this spawner */
+  std::vector<Agent*> agents;
   /* Region this spawner is in */
   MapUnit* topLeft;
   void spawnAgent();
@@ -26,6 +28,7 @@ public:
   Game* game;
   const Team* team;
   Spawner(Game*, MapUnit*, const Team*, unsigned int, unsigned int);
+  ~Spawner();
   void update();
 };
 

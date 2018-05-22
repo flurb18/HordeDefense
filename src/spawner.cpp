@@ -30,6 +30,7 @@ void Spawner::update() {
   if (game->t % timeToCreateAgent == 0) {
     spawnAgent();
   }
+  for (Agent* a: agents) a->update();
 }
 
 /* Try to spawn an agent. Spawner spawns in areas of its size up, down left and
@@ -56,20 +57,25 @@ void Spawner::spawnAgent() {
      don't do it (clear your spawn region!) */
   if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
-    Agent* a = new Agent(game, &paths, uptr, team);
+    agents.push_back(new Agent(game, &paths, uptr, team));
     switch(whichSide) {
       case 0:
-        a->dx = 1;
+        agents.back()->dx = 1;
         break;
       case 1:
-        a->dy = 1;
+        agents.back()->dy = 1;
         break;
       case 2:
-        a->dx = -1;
+        agents.back()->dx = -1;
         break;
       case 3:
-        a->dy = -1;
+        agents.back()->dy = -1;
         break;
     }
   }
+}
+
+Spawner::~Spawner() {
+  for (unsigned int i = 0; i < agents.size(); i++) delete agents[i];
+  agents.clear();
 }

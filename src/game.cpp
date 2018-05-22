@@ -143,11 +143,6 @@ void Game::draw() {
    region; if the region contains a spawner it will check if should spawn
    an agent, and attempt to */
 void Game::update() {
-  for (MapUnit* u: mapUnits) {
-    if (u->type == UNIT_TYPE_AGENT) {
-      u->agent->update();
-    }
-  }
   spawn->update();
 }
 

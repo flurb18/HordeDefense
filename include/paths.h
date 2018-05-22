@@ -5,7 +5,7 @@
 
 class Game;
 class Region;
-class MapUnit;
+struct MapUnit;
 
 class Paths {
 private:

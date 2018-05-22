@@ -4,7 +4,7 @@
 /* Forward Declarations */
 class Game;
 class Paths;
-class MapUnit;
+struct MapUnit;
 struct Team;
 
 const int OBJECTIVE_TYPE_WAIT = 0;

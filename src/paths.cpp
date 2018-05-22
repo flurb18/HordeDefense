@@ -4,17 +4,6 @@
 
 #include "game.h"
 
-using std::vector;
-
-struct RegionEdgeSegment {
-  int from;
-  int to;
-  bool edgeInXDirection;
-  bool edgeInPositiveDirection;
-  int lo;
-  int hi;
-};
-
 struct WeightedEdge {
   int from;
   int to;
@@ -22,8 +11,8 @@ struct WeightedEdge {
 };
 
 struct Digraph {
-  vector<bool> marked;
-  vector<vector<int>> adj;
+  std::vector<bool> marked;
+  std::vector<std::vector<int>> adj;
 };
 
 Paths::Paths(Game* g, MapUnit* startUnit): game(g) {

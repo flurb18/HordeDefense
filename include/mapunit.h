@@ -12,12 +12,8 @@ class Agent;
 class Game;
 struct Team;
 
-class MapUnit {
-  friend class Spawner;
-  friend class Game;
-private:
+struct MapUnit {
   unsigned int x, y, index;
-public:
   int type;
   Agent* agent;
   Game* game;
@@ -29,7 +25,6 @@ public:
   MapUnit(Game*);
   MapUnit(Game*, int, int);
   MapUnit(Game*, const Team*, int, int, int);
-  ~MapUnit();
 };
 
 #endif
