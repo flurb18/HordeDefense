@@ -19,7 +19,6 @@ private:
   unsigned int x, y, index;
 public:
   int type;
-  bool movedTo;
   Agent* agent;
   Game* game;
   const Team* team;

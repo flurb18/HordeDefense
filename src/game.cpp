@@ -218,6 +218,12 @@ void Game::mainLoop() {
 
 Game::~Game() {
   delete spawn;
+  for (MapUnit* u : mapUnits) {
+    u->left = nullptr;
+    u->right = nullptr;
+    u->down = nullptr;
+    u->up = nullptr;
+  }
   for (unsigned int i = 0; i < mapUnits.size(); i++) {
     delete mapUnits[i];
   }
