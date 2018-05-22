@@ -25,9 +25,9 @@ private:
   const Team* team;
   bool move();
   bool moveTo(MapUnit*);
-  MapUnit* getDestUnit();
 public:
   Agent(Game*, Paths*, MapUnit*, const Team*);
+  ~Agent();
   void update();
 };
 

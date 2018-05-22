@@ -54,8 +54,8 @@ void Spawner::spawnAgent() {
   int spawnUnitIndex = game->coordsToSqIndex(spawnX, spawnY, game->getSize());
   /* Check if we can actually spawn an agent in the desired space; if not, just
      don't do it (clear your spawn region!) */
-  if (game->mapunits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
-    MapUnit* uptr = game->mapunits[spawnUnitIndex];
+  if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
+    MapUnit* uptr = game->mapUnits[spawnUnitIndex];
     Agent* a = new Agent(game, &paths, uptr, team);
     switch(whichSide) {
       case 0:

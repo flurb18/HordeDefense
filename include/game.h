@@ -50,7 +50,7 @@ public:
   /* Whether or not the game is currently paused */
   bool paused;
   SDL_Rect selection;
-  std::vector<MapUnit*> mapunits;
+  std::vector<MapUnit*> mapUnits;
   Display* disp;
   MapUnit outside;
   unsigned int coordsToSqIndex(int, int, int);

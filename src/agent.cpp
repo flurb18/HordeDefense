@@ -48,19 +48,18 @@ bool Agent::moveTo(MapUnit* destUnit) {
   return true;
 }
 
-MapUnit* Agent::getDestUnit() {
-  if (dx > 0) return unit->right;
-  if (dx < 0) return unit->left;
-  if (dy > 0) return unit->down;
-  if (dy < 0) return unit->up;
-  return unit;
-}
-
 /* Attempts to move the agent; returns true if successful, false otherwise */
 bool Agent::move() {
   if (dx == 0 && dy == 0) return false;
-  MapUnit* destUnit = getDestUnit();
+  MapUnit* destUnit = unit;
+  if (dx > 0) destUnit = unit->right;
+  if (dx < 0) destUnit = unit->left;
+  if (dy > 0) destUnit = unit->down;
+  if (dy < 0) destUnit = unit->up;
   if (destUnit->type != UNIT_TYPE_EMPTY) {
+    /* If attempting to move into a door, check if the door's team equals this
+       agent's team; if it does, try to move into the square past the door based
+       on the motion of the agent */
     if (destUnit->type == UNIT_TYPE_DOOR) {
       if (team == destUnit->team) {
         if (dx > 0) destUnit = destUnit->right;
@@ -75,3 +74,5 @@ bool Agent::move() {
   // Switch around the two region units, which just means exchanging their data
   return moveTo(destUnit);
 }
+
+Agent::~Agent() {}
