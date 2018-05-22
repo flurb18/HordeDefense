@@ -9,27 +9,11 @@ of development.
 
 - Add menu for beginning of game / in the middle of game
 - add difficulty factor to game context
-- Make Agents able to follow orders (go to region & explore to start); call class
+- Make Agents able to follow orders (explore to start); call class
   Mission
 - create class for path finding through a square of n x n nodes with some
   connections between nodes blocked (DFS GRAPH THORY) - agents will learn from
-  each other and find paths by exploring by themselves, both within each region
-  and across the game board as a whole.
-  + If an agent wants to get to a certain region, it will path find its way
-    across the map's regions using data collected from previous agents traversing
-    the map, then across each individual region using the same. These pathfinding
-    classes will be in the game context for units (user-controlled agents) and
-    enemies (computer-controlled agents), in separate instances so the units and
-    enemies each learn on their own.
-  + Pathfinding across regions will require making the edges of the regions into
-    the vertices - two opposite sides of a Region considered connected if Agents
-    can pathfind from edge to edge... if wall on edge, make segments of available
-    wall space (place where Agent can walk in) into separate vertices on cross
-    map pathfinding. So:
-    given x,y destination:
-      See if can path to it within region
-      else, find available wall space (region edges) from agent starting point,
-      pathfind across map to available wall space from destination
+  each other and find paths by exploring by themselves
   + Use Percolation / Union find
 - Create Walls buildable by any Agent
 - Create Doors, walls passable by anyone on same team as the door

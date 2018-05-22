@@ -10,12 +10,12 @@
 #include "spawner.h"
 
 
-/* Constructor sets up regions, creates a friendly spawner */
+/* Constructor sets up map units, creates a friendly spawner */
 Game::Game(Display* d): Square(d->getSize()), \
                         context(GAME_CONTEXT_ZOOMED_OUT), t(0), paused(true), disp(d), outside(this) {
   /* mapUnits is a vector */
   mapUnits.reserve(size * size);
-  /* Units are created in the x direction; it fills the top row with regions
+  /* Units are created in the x direction; it fills the top row with map units
   from left to right, then the next row and so on
   SDL window x and y start at 0 at top left and increase right and
   down respectively*/
@@ -132,21 +132,19 @@ void Game::draw() {
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
-  // Display coordinates of current region selection
+  // Display coordinates of current selection
   const char *s = (std::to_string(selection.x) + ", " + std::to_string(selection.y)).c_str();
   int w;
   disp->sizeText(s, &w, nullptr);
   disp->drawText(s, disp->getSize() - w, 0);
 }
 
-/* Advance each region in game time, which means updating the units in each
-   region; if the region contains a spawner it will check if should spawn
-   an agent, and attempt to */
+/* Update the spawners, which will update the agents they track */
 void Game::update() {
   spawn->update();
 }
 
-/* Main loop of the game; largely just handles events, calls draw() and updateRegions
+/* Main loop of the game; largely just handles events, calls draw() and update()
    the display */
 void Game::mainLoop() {
   SDL_Event e;

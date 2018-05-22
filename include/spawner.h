@@ -20,7 +20,6 @@ private:
   Paths paths;
   /* Agents spawned/updated by this spawner */
   std::vector<Agent*> agents;
-  /* Region this spawner is in */
   MapUnit* topLeft;
   void spawnAgent();
 

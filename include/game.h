@@ -8,9 +8,7 @@
 #include "square.h"
 
 /* Forward declarations */
-class Context;
 class Display;
-class Region;
 class Spawner;
 
 /* Various game contexts */

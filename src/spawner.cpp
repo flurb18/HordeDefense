@@ -6,8 +6,8 @@
 #include "agent.h"
 #include "game.h"
 
-/* Constructor of the spawner also tells the argument region that it has a spawner,
-   and creates region units where the spawner is */
+/* Constructor of the spawner also tells the argument map unit that it has a spawner,
+   and sets the map units where the spawner is */
 Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  unsigned int s, unsigned int t_) : Square(s), \
                  timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
@@ -34,7 +34,7 @@ void Spawner::update() {
 }
 
 /* Try to spawn an agent. Spawner spawns in areas of its size up, down left and
-   right; so if all spawn regions are filled, it looks like a cross with the
+   right; so if all spawn map units are filled, it looks like a cross with the
    spawner at the center and agents filling boxes of the spawner's size on all
    sides */
 void Spawner::spawnAgent() {
@@ -54,7 +54,7 @@ void Spawner::spawnAgent() {
   spawnY += spawnIncrementOptions[whichSide][1];
   int spawnUnitIndex = game->coordsToSqIndex(spawnX, spawnY, game->getSize());
   /* Check if we can actually spawn an agent in the desired space; if not, just
-     don't do it (clear your spawn region!) */
+     don't do it (clear the area around your spawn!) */
   if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
     agents.push_back(new Agent(game, &paths, uptr, team));

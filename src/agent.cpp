@@ -71,7 +71,6 @@ bool Agent::move() {
     }
     return false;
   }
-  // Switch around the two region units, which just means exchanging their data
   return moveTo(destUnit);
 }
 

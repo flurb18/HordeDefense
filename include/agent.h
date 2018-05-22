@@ -13,7 +13,6 @@ const int OBJECTIVE_TYPE_GOTO = 2;
 const int OBJECTIVE_TYPE_BUILD = 3;
 const int OBJECTIVE_TYPE_CHARGE = 4;
 
-/* Agent extends RegionUnit, so they are stored within the region they occupy */
 class Agent {
   friend class Spawner;
 private:
