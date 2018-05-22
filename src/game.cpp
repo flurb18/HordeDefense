@@ -38,7 +38,7 @@ Game::Game(Display* d): Square(d->getSize()), \
     }
   }
 
-  selection = {0, 0, (int)size, (int)size};
+  selection = {0, 0, getRadius(), getRadius()};
   // do something with this
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
   spawn = new Spawner(this, spawnUnit, &WHITE_TEAM, 8, 3);
@@ -70,8 +70,8 @@ void Game::mouseMoved(int x, int y) {
       adjustedY = y - (selection.h / 2);
       if (adjustedX < 0) adjustedX = 0;
       if (adjustedY < 0) adjustedY = 0;
-      if (adjustedX > (int) size - 1) adjustedX = size- 1;
-      if (adjustedY > (int) size - 1) adjustedY = size - 1;
+      if (adjustedX > (int) size - selection.w) adjustedX = size - selection.w;
+      if (adjustedY > (int) size - selection.h) adjustedY = size - selection.h;
       selection.x = adjustedX;
       selection.y = adjustedY;
       break;
@@ -212,15 +212,14 @@ void Game::mainLoop() {
     }
     draw();
     disp->update();
-    //disp->wait(10);
+    disp->wait(10);
   }
 }
 
 Game::~Game() {
+  delete spawn;
   for (unsigned int i = 0; i < mapUnits.size(); i++) {
-    if (mapUnits[i]->agent) delete mapUnits[i]->agent;
     delete mapUnits[i];
   }
   mapUnits.clear();
-  delete spawn;
 }

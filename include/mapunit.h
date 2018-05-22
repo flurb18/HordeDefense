@@ -16,7 +16,7 @@ class MapUnit {
   friend class Spawner;
   friend class Game;
 private:
-  unsigned int x, y;
+  unsigned int x, y, index;
 public:
   int type;
   bool movedTo;
@@ -27,11 +27,10 @@ public:
   MapUnit* down;
   MapUnit* left;
   MapUnit* right;
-  MapUnit(Game* g): type(UNIT_TYPE_OUTSIDE), game(g) {};
-  MapUnit(Game* g, int x_, int y_): \
-             x(x_), y(y_), type(UNIT_TYPE_EMPTY), game(g)  {};
-  MapUnit(Game* g, const Team* t, int type_, int x_, int y_): \
-             x(x_), y(y_), type(type_), game(g), team(t) {};
+  MapUnit(Game*);
+  MapUnit(Game*, int, int);
+  MapUnit(Game*, const Team*, int, int, int);
+  ~MapUnit();
 };
 
 #endif
