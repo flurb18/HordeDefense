@@ -14,3 +14,17 @@ MapUnit::MapUnit(Game* g, const Team* t, int type_, int x_, int y_): \
              x(x_), y(y_), type(type_), game(g), team(t) {
   index = game->coordsToSqIndex(x, y, game->getSize());
 }
+
+void MapUnit::iterator::next() {
+  current = current->right;
+  j++;
+  if (current->type == UNIT_TYPE_OUTSIDE || j == w) {
+    firstInRow = firstInRow->down;
+    current = firstInRow;
+    j = 0;
+    i++;
+    if (current->type == UNIT_TYPE_OUTSIDE || i == h) {
+      hasNextUnit = false;
+    }
+  }
+}

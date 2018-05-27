@@ -27,7 +27,7 @@ Display::Display(int s) : Square(s) {
     SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL //    flags
   );
   // Check that the window was successfully made
-  if (window == NULL){
+  if (window == nullptr){
     // In the event that the window could not be made...
     std::cerr << "Could not create window!\n";
     std::cerr << SDL_GetError() << std::endl;
@@ -37,7 +37,7 @@ Display::Display(int s) : Square(s) {
   //fontFile = "/usr/share/fonts/TTF/DejaVuSansMono.ttf";
   fontFile = "/usr/share/fonts/TTF/Roboto-Regular.ttf";
   font = TTF_OpenFont(fontFile, 16);
-  if (font == NULL) {
+  if (font == nullptr) {
     std::cerr << "Font could not be laoded!\n";
     std::cerr << TTF_GetError() << std::endl;
     throw TTF_GetError();
@@ -100,7 +100,7 @@ void Display::drawText(const char *text, int x, int y) {
   SDL_Texture* texture = SDL_CreateTextureFromSurface(render, surface);
   SDL_Rect rect = {x, y, surface->w, surface->h};
   SDL_FreeSurface(surface);
-  SDL_RenderCopy(render, texture, NULL, &rect);
+  SDL_RenderCopy(render, texture, nullptr, &rect);
   SDL_DestroyTexture(texture);
 }
 

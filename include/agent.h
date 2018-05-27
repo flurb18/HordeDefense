@@ -18,13 +18,13 @@ class Agent {
 private:
   int objective, dx, dy;
   unsigned long long lastUpdatedTimestamp;
-  Game* game;
-  MapUnit* unit;
   Paths* paths;
   const Team* team;
   bool move();
   bool moveTo(MapUnit*);
 public:
+  Game* game;
+  MapUnit* unit;
   Agent(Game*, Paths*, MapUnit*, const Team*);
   ~Agent();
   void update();

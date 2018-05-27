@@ -1,15 +1,14 @@
 #include "agent.h"
 
-#include <algorithm>
-#include <iostream>
-#include <set>
+#include <cstdlib>
+#include <vector>
 
 #include "game.h"
+#include "paths.h"
 #include "mapunit.h"
 
 Agent::Agent(Game* g, Paths* p, MapUnit* m, const Team* t):
-             game(g), unit(m), paths(p), team(t) {
-  paths = p;
+              paths(p), team(t), game(g), unit(m) {
   objective = OBJECTIVE_TYPE_EXPLORE;
   dx = 0;
   dy = 0;
@@ -19,12 +18,26 @@ Agent::Agent(Game* g, Paths* p, MapUnit* m, const Team* t):
 
 /* Update agent based on objective */
 void Agent::update() {
+  /* Only update once per tick */
   if (lastUpdatedTimestamp == game->t) return;
   lastUpdatedTimestamp = game->t;
+  int incrementOptions[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+  std::vector<int> options;
   switch(objective) {
     case OBJECTIVE_TYPE_EXPLORE:
-      //TODO
-      move();
+      if (paths->visible[unit->left->index] == false) options.push_back(0);
+      if (paths->visible[unit->right->index] == false) options.push_back(1);
+      if (paths->visible[unit->up->index] == false) options.push_back(2);
+      if (paths->visible[unit->down->index] == false) options.push_back(3);
+      int exploreSelection;
+      if (options.size() != 0) exploreSelection = options[rand() % options.size()];
+      else exploreSelection = rand() % 4;
+      dx = incrementOptions[exploreSelection][0];
+      dy = incrementOptions[exploreSelection][1];
+      if (!move()) {
+        dx = -dx;
+        dy = -dy;
+      }
       break;
     case OBJECTIVE_TYPE_CHARGE:
       if (!move()) {
@@ -36,7 +49,6 @@ void Agent::update() {
 }
 
 bool Agent::moveTo(MapUnit* destUnit) {
-  if (destUnit->type == UNIT_TYPE_OUTSIDE) return false;
   if (destUnit->type != UNIT_TYPE_EMPTY) return false;
   destUnit->type = UNIT_TYPE_AGENT;
   destUnit->agent = this;
@@ -44,11 +56,13 @@ bool Agent::moveTo(MapUnit* destUnit) {
   unit->type = UNIT_TYPE_EMPTY;
   unit->agent = nullptr;
   unit->team = nullptr;
+  paths->visible[destUnit->index] = true;
   unit = destUnit;
   return true;
 }
 
-/* Attempts to move the agent; returns true if successful, false otherwise */
+/* Attempts to move the agent based on dx and dy; returns true if successful,
+   false otherwise */
 bool Agent::move() {
   if (dx == 0 && dy == 0) return false;
   MapUnit* destUnit = unit;

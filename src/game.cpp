@@ -24,6 +24,7 @@ Game::Game(Display* d): Square(d->getSize()), \
       mapUnits.push_back(new MapUnit(this, j, i));
     }
   }
+  /* Interlink the map units so they all know their adjacent units */
   for (unsigned int i = 0; i < size; i++) {
     for (unsigned int j = 0; j < size; j++) {
       int index = coordsToSqIndex(j, i, size);
@@ -101,7 +102,9 @@ void Game::draw() {
   switch(context) {
     case GAME_CONTEXT_ZOOMED_OUT:
       for (MapUnit* u : mapUnits) {
+        /* Only draw nonempty units */
         if (u->type != UNIT_TYPE_EMPTY){
+          /* Set the color to the units team, of white if it has none */
           if (u->team) disp->setDrawColor(u->team);
           else disp->setDrawColorWhite();
           disp->drawPixel(u->x, u->y);
@@ -111,21 +114,21 @@ void Game::draw() {
       disp->drawRect(&selection);
       break;
     case GAME_CONTEXT_ZOOMED_IN:
-      MapUnit* firstInRow = mapUnits[coordsToSqIndex(selection.x, selection.y, size)];
-      MapUnit* u = firstInRow;
-      for (int i = 0; i < selection.h && firstInRow->type != UNIT_TYPE_OUTSIDE; i++) {
-        for (int j = 0; j < selection.w && u->type != UNIT_TYPE_OUTSIDE; j++) {
-          if (u->type != UNIT_TYPE_EMPTY) {
-            if (u->team) disp->setDrawColor(u->team);
-            else disp->setDrawColorWhite();
-            int scale = size / selection.w;
-            disp->drawRectFilled((u->x - selection.x) * scale,
-                                 (u->y - selection.y) * scale, scale, scale);
-          }
-          u = u->right;
+      MapUnit* first = mapUnits[coordsToSqIndex(selection.x, selection.y, size)];
+      /* Iterate over selection */
+      for (MapUnit::iterator iter = first->getIterator(selection.w, selection.h); \
+           iter.hasNext(); iter++) {
+        if (iter->type != UNIT_TYPE_EMPTY) {
+          if (iter->team) disp->setDrawColor(iter->team);
+          else disp->setDrawColorWhite();
+          int scaleX = size / selection.w;
+          int scaleY = size / selection.h;
+          int scaledX = (iter->x - selection.x) * scaleX;
+          int scaledY = (iter->y - selection.y) * scaleY;
+          if (iter->type == UNIT_TYPE_SPAWNER && ((iter.i + iter.j) % 2) == 0)
+            disp->setDrawColorBlack();
+          disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
         }
-        firstInRow = firstInRow->down;
-        u = firstInRow;
       }
       break;
   }
@@ -211,6 +214,7 @@ void Game::mainLoop() {
 
 Game::~Game() {
   delete spawn;
+  /* Reset inter-mapunit links, so we don't have bad pointer segfaults on deletion */
   for (MapUnit* u : mapUnits) {
     u->left = nullptr;
     u->right = nullptr;

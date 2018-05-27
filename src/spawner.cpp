@@ -12,24 +12,32 @@ Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  unsigned int s, unsigned int t_) : Square(s), \
                  timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
   srand(time(0));
+  //MapUnit::iterator iter = topLeft->getIterator(size, size);
+  for (MapUnit::iterator iter = topLeft->getIterator(size, size); iter.hasNext(); iter++) {
+    iter->type = UNIT_TYPE_SPAWNER;
+    paths.visible[iter->index] = true;
+  }
+  /*
   MapUnit* firstInRow = topLeft;
   MapUnit* current = topLeft;
   for (unsigned int i = 0; i < size && firstInRow->type != UNIT_TYPE_OUTSIDE; i++) {
     for (unsigned int j = 0; j < size && current->type != UNIT_TYPE_OUTSIDE; j++) {
       current->type = UNIT_TYPE_SPAWNER;
+      paths.visible[current->index] = true;
       current = current->right;
     }
     firstInRow = firstInRow->down;
     current = firstInRow;
-  }
+  }*/
 }
 
 /* Update the spawner through one tick of game time */
 void Spawner::update() {
-  // Spawn an Agent if the current game time is a multiple of timeToCreateAgent
+  /* Spawn an Agent if the current game time is a multiple of timeToCreateAgent */
   if (game->t % timeToCreateAgent == 0) {
     spawnAgent();
   }
+  /* Update the agents this spawner tracks */
   for (Agent* a: agents) a->update();
 }
 
@@ -57,6 +65,7 @@ void Spawner::spawnAgent() {
      don't do it (clear the area around your spawn!) */
   if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
+    paths.visible[spawnUnitIndex] = true;
     agents.push_back(new Agent(game, &paths, uptr, team));
     switch(whichSide) {
       case 0:
