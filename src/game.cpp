@@ -103,7 +103,7 @@ void Game::draw() {
     case GAME_CONTEXT_ZOOMED_OUT:
       for (MapUnit* u : mapUnits) {
         /* Only draw nonempty units */
-        if (u->type != UNIT_TYPE_EMPTY){
+        if (u->type != UNIT_TYPE_EMPTY) {
           /* Set the color to the units team, of white if it has none */
           if (u->team) disp->setDrawColor(u->team);
           else disp->setDrawColorWhite();

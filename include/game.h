@@ -44,7 +44,7 @@ private:
 public:
   int context;
   /* Game ticks since this object was created */
-  unsigned long long t;
+  unsigned long long int t;
   /* Whether or not the game is currently paused */
   bool paused;
   SDL_Rect selection;

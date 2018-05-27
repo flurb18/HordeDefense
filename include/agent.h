@@ -17,7 +17,7 @@ class Agent {
   friend class Spawner;
 private:
   int objective, dx, dy;
-  unsigned long long lastUpdatedTimestamp;
+  unsigned long long int lastUpdatedTimestamp;
   Paths* paths;
   const Team* team;
   bool move();

@@ -1,7 +1,6 @@
 #include "spawner.h"
 
 #include <cstdlib>
-#include <ctime>
 
 #include "agent.h"
 #include "game.h"
@@ -11,24 +10,10 @@
 Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  unsigned int s, unsigned int t_) : Square(s), \
                  timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
-  srand(time(0));
-  //MapUnit::iterator iter = topLeft->getIterator(size, size);
   for (MapUnit::iterator iter = topLeft->getIterator(size, size); iter.hasNext(); iter++) {
     iter->type = UNIT_TYPE_SPAWNER;
     paths.visible[iter->index] = true;
   }
-  /*
-  MapUnit* firstInRow = topLeft;
-  MapUnit* current = topLeft;
-  for (unsigned int i = 0; i < size && firstInRow->type != UNIT_TYPE_OUTSIDE; i++) {
-    for (unsigned int j = 0; j < size && current->type != UNIT_TYPE_OUTSIDE; j++) {
-      current->type = UNIT_TYPE_SPAWNER;
-      paths.visible[current->index] = true;
-      current = current->right;
-    }
-    firstInRow = firstInRow->down;
-    current = firstInRow;
-  }*/
 }
 
 /* Update the spawner through one tick of game time */
@@ -46,18 +31,18 @@ void Spawner::update() {
    spawner at the center and agents filling boxes of the spawner's size on all
    sides */
 void Spawner::spawnAgent() {
-  // Spawner can create agents in boxes of its size on each of its sides
-  int relX = rand() % getSize();
-  int relY = rand() % getSize();
+  /* Set spawnX and spawnY to be random unit from the top left corner of the
+     spawner to the bottom right */
+  int spawnX = (rand() % size) + topLeft->x;
+  int spawnY = (rand() % size) + topLeft->y;
+  /* Then choose a random side of the spawner to spawn on; depending on which
+     side we want to spawn on, spawnx or spawnY will either increment or
+     decrement by the size of the spawner */
   int whichSide = rand() % 4;
-  // set spawnX and spawnY to be relX,Y from the top corner of the spawner
-  int spawnX = relX + topLeft->x;
-  int spawnY = relY + topLeft->y;
-  /* Then depending on which side we want to spawn on, spawnx or spawnY will
-     either increment or decrement by the size of the spawner */
-  int s = getSize();
-  int ns = getSize() * -1;
-  int spawnIncrementOptions[4][2] = {{s, 0}, {0, s}, {ns, 0}, {0, ns}};
+  /* Convert unsigned int size to normal int so decrement works */
+  int s = size;
+  /* Do the random changing of the spawn location */
+  int spawnIncrementOptions[4][2] = {{s, 0}, {0, s}, {-s, 0}, {0, -s}};
   spawnX += spawnIncrementOptions[whichSide][0];
   spawnY += spawnIncrementOptions[whichSide][1];
   int spawnUnitIndex = game->coordsToSqIndex(spawnX, spawnY, game->getSize());
@@ -66,6 +51,8 @@ void Spawner::spawnAgent() {
   if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
     paths.visible[spawnUnitIndex] = true;
+    /* Setting the map unit as UNIT_TYPE_AGENT and setting its reference to the
+       agent it contains is done in the constructor of Agent */
     agents.push_back(new Agent(game, &paths, uptr, team));
     switch(whichSide) {
       case 0:
