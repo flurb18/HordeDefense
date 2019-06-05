@@ -44,7 +44,7 @@ Game::Game(Display* d): Square(d->getSize()), \
   // do something with this
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
   zoomSelectedUnit = spawnUnit;
-  spawn = new Spawner(this, spawnUnit, &BLUE_TEAM, 8, 3);
+  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
 }
 
 
@@ -132,7 +132,6 @@ void Game::zoomSelectionIn(int x, int y) {
       mouseMoved(x, y);
       break;
     case GAME_CONTEXT_ZOOMED_IN:
-      // Ideally zoom in around the mouse
       selection.x += selection.w / 2;
       selection.y += selection.h / 2;
       mouseMoved(x, y);
@@ -151,7 +150,6 @@ void Game::zoomSelectionOut(int x, int y) {
       mouseMoved(x, y);
       break;
     case GAME_CONTEXT_ZOOMED_IN:
-      // Ideally zoom out around the mouse
       if (oldSelectionSize != selection.w) {
         selection.x -= selection.w / 4;
         selection.y -= selection.h / 4;

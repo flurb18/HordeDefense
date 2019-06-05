@@ -58,7 +58,7 @@ void Display::setDrawColor(int r, int g, int b) {
 
 /* Set the draw color to the color of a given team */
 void Display::setDrawColor(const Team *team) {
-  SDL_SetRenderDrawColor(render, team->R, team->B, team->G, 255);
+  SDL_SetRenderDrawColor(render, team->R, team->G, team->B, 255);
 }
 
 /* Set the draw color to white */
