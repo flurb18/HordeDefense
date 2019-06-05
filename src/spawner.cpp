@@ -12,6 +12,7 @@ Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
   for (MapUnit::iterator iter = topLeft->getIterator(size, size); iter.hasNext(); iter++) {
     iter->type = UNIT_TYPE_SPAWNER;
+    iter->team = t;
     paths.visible[iter->index] = true;
   }
 }

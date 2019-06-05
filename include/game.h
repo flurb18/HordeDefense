@@ -39,6 +39,8 @@ private:
   void mouseMoved(int, int);
   void leftMouseClicked(int, int);
   void rightMouseClicked(int, int);
+  void zoomSelectionIn(int, int);
+  void zoomSelectionOut(int, int);
   void draw();
   void update();
 public:
@@ -48,9 +50,11 @@ public:
   /* Whether or not the game is currently paused */
   bool paused;
   SDL_Rect selection;
+  SDL_Rect zoomSelection;
   std::vector<MapUnit*> mapUnits;
   Display* disp;
   MapUnit outside;
+  MapUnit* zoomSelectedUnit;
   unsigned int coordsToSqIndex(int, int, int);
   unsigned int dispCoordsToSqIndex(int, int, int);
   void indexToSqCoords(int, int, int*, int*);

@@ -2,7 +2,7 @@
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_rect.h>
-#include <iostream>
+//#include <iostream>
 #include <string>
 
 #include "agent.h"
@@ -40,9 +40,11 @@ Game::Game(Display* d): Square(d->getSize()), \
   }
 
   selection = {0, 0, getRadius(), getRadius()};
+  zoomSelection = {0,0,getRadius(),getRadius()};
   // do something with this
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
-  spawn = new Spawner(this, spawnUnit, &WHITE_TEAM, 8, 3);
+  zoomSelectedUnit = spawnUnit;
+  spawn = new Spawner(this, spawnUnit, &BLUE_TEAM, 8, 3);
 }
 
 
@@ -65,8 +67,8 @@ void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
 /* Handle a mouse moved to (x,y) */
 void Game::mouseMoved(int x, int y) {
   switch(context) {
-    int adjustedX, adjustedY;
     case GAME_CONTEXT_ZOOMED_OUT:
+      int adjustedX, adjustedY;
       adjustedX = x - (selection.w / 2);
       adjustedY = y - (selection.h / 2);
       if (adjustedX < 0) adjustedX = 0;
@@ -77,23 +79,65 @@ void Game::mouseMoved(int x, int y) {
       selection.y = adjustedY;
       break;
     case GAME_CONTEXT_ZOOMED_IN:
+      /* Width and height of each unit in current view */
+      int scaleX = size / selection.w;
+      int scaleY = size / selection.h;
+      int mouseUnitX = x / scaleX;
+      int mouseUnitY = y / scaleY;
+      int mouseUnitAbsoluteX = mouseUnitX + selection.x;
+      int mouseUnitAbsoluteY = mouseUnitY + selection.y;
+      zoomSelectedUnit = mapUnits[coordsToSqIndex(mouseUnitAbsoluteX, mouseUnitAbsoluteY, size)];
+      zoomSelection.x = mouseUnitX * scaleX;
+      zoomSelection.y = mouseUnitY * scaleY;
+      zoomSelection.w = scaleX;
+      zoomSelection.h = scaleY;
+      //TODO
+
+      break;
+  }
+
+}
+
+/* Handle a left mouse click at (x,y) */
+void Game::leftMouseClicked(int x, int y) {
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      context = GAME_CONTEXT_ZOOMED_IN;
+      break;
+    case GAME_CONTEXT_ZOOMED_IN:
       //TODO
       break;
   }
 }
 
-/* Handle a left mouse click at (x,y) */
-void Game::leftMouseClicked(int x, int y) {
-  if (context == GAME_CONTEXT_ZOOMED_OUT) {
-    context = GAME_CONTEXT_ZOOMED_IN;
+/* Handle a right mouse click at (x,y) */
+void Game::rightMouseClicked(int x, int y) {
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      //TODO
+      break;
+    case GAME_CONTEXT_ZOOMED_IN:
+      context = GAME_CONTEXT_ZOOMED_OUT;
+      break;
   }
 }
 
-/* Handle a right mouse click at (x,y) */
-void Game::rightMouseClicked(int x, int y) {
-  if (context == GAME_CONTEXT_ZOOMED_IN) {
-    context = GAME_CONTEXT_ZOOMED_OUT;
-  }
+
+//TODO for each of these: handle game context zoomed in
+void Game::zoomSelectionIn(int x, int y) {
+  selection.w/=2;
+  selection.h/=2;
+  if (selection.w < 1) selection.w = 1;
+  if (selection.h < 1) selection.h = 1;
+  mouseMoved(x, y);
+}
+
+void Game::zoomSelectionOut(int x, int y) {
+  selection.w*=2;
+  selection.h*=2;
+  if (selection.h > getRadius()) selection.h = getRadius();
+  if (selection.w > getRadius()) selection.w = getRadius();
+  mouseMoved(x, y);
 }
 
 /* Draw the current game screen based on context */
@@ -130,6 +174,22 @@ void Game::draw() {
           disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
         }
       }
+      disp->setDrawColorWhite();
+      disp->drawRect(&zoomSelection);
+      if (zoomSelectedUnit->type != UNIT_TYPE_EMPTY) {
+        const char *unitTypeString = "default";
+        switch(zoomSelectedUnit->type) {
+          case UNIT_TYPE_AGENT:
+            unitTypeString = "Agent";
+            break;
+          case UNIT_TYPE_SPAWNER:
+            unitTypeString = "Spawner";
+        }
+        int unitTypeStringWidth;
+        int unitTypeStringHeight;
+        disp->sizeText(unitTypeString, &unitTypeStringWidth, &unitTypeStringHeight);
+        disp->drawText(unitTypeString, disp->getSize() - unitTypeStringWidth, unitTypeStringHeight);
+      }
       break;
   }
   if (paused) {
@@ -137,6 +197,7 @@ void Game::draw() {
   }
   // Display coordinates of current selection
   const char *s = (std::to_string(selection.x) + ", " + std::to_string(selection.y)).c_str();
+
   int w;
   disp->sizeText(s, &w, nullptr);
   disp->drawText(s, disp->getSize() - w, 0);
@@ -185,18 +246,10 @@ void Game::mainLoop() {
               paused = !paused;
               break;
             case SDLK_UP:
-              selection.w*=2;
-              selection.h*=2;
-              if (selection.h > getRadius()) selection.h = getRadius();
-              if (selection.w > getRadius()) selection.w = getRadius();
-              mouseMoved(x, y);
+              zoomSelectionOut(x,y);
               break;
             case SDLK_DOWN:
-              selection.w/=2;
-              selection.h/=2;
-              if (selection.w < 1) selection.w = 1;
-              if (selection.h < 1) selection.h = 1;
-              mouseMoved(x, y);
+              zoomSelectionIn(x,y);
               break;
           }
           break;
