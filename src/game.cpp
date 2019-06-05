@@ -91,8 +91,6 @@ void Game::mouseMoved(int x, int y) {
       zoomSelection.y = mouseUnitY * scaleY;
       zoomSelection.w = scaleX;
       zoomSelection.h = scaleY;
-      //TODO
-
       break;
   }
 
@@ -129,15 +127,42 @@ void Game::zoomSelectionIn(int x, int y) {
   selection.h/=2;
   if (selection.w < 1) selection.w = 1;
   if (selection.h < 1) selection.h = 1;
-  mouseMoved(x, y);
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      mouseMoved(x, y);
+      break;
+    case GAME_CONTEXT_ZOOMED_IN:
+      // Ideally zoom in around the mouse
+      selection.x += selection.w / 2;
+      selection.y += selection.h / 2;
+      mouseMoved(x, y);
+      break;
+  }
 }
 
 void Game::zoomSelectionOut(int x, int y) {
+  int oldSelectionSize = selection.w;
   selection.w*=2;
   selection.h*=2;
   if (selection.h > getRadius()) selection.h = getRadius();
   if (selection.w > getRadius()) selection.w = getRadius();
-  mouseMoved(x, y);
+  switch(context) {
+    case GAME_CONTEXT_ZOOMED_OUT:
+      mouseMoved(x, y);
+      break;
+    case GAME_CONTEXT_ZOOMED_IN:
+      // Ideally zoom out around the mouse
+      if (oldSelectionSize != selection.w) {
+        selection.x -= selection.w / 4;
+        selection.y -= selection.h / 4;
+        if (selection.x < 0) selection.x = 0;
+        if (selection.y < 0) selection.y = 0;
+        if (selection.x > (int) size - selection.w) selection.x = size - selection.w;
+        if (selection.y > (int) size - selection.h) selection.y = size - selection.h;
+      }
+      mouseMoved(x, y);
+      break;
+  }
 }
 
 /* Draw the current game screen based on context */
@@ -177,18 +202,20 @@ void Game::draw() {
       disp->setDrawColorWhite();
       disp->drawRect(&zoomSelection);
       if (zoomSelectedUnit->type != UNIT_TYPE_EMPTY) {
-        const char *unitTypeString = "default";
+        std::string unitTypeString = "";
         switch(zoomSelectedUnit->type) {
           case UNIT_TYPE_AGENT:
-            unitTypeString = "Agent";
+            unitTypeString = "Agent @ ";
             break;
           case UNIT_TYPE_SPAWNER:
-            unitTypeString = "Spawner";
+            unitTypeString = "Spawner @ ";
         }
+        unitTypeString += std::to_string(zoomSelectedUnit->x) + ", " + std::to_string(zoomSelectedUnit->y);
         int unitTypeStringWidth;
         int unitTypeStringHeight;
-        disp->sizeText(unitTypeString, &unitTypeStringWidth, &unitTypeStringHeight);
-        disp->drawText(unitTypeString, disp->getSize() - unitTypeStringWidth, unitTypeStringHeight);
+        const char *unitInfoCstr = unitTypeString.c_str();
+        disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
+        disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, unitTypeStringHeight);
       }
       break;
   }
