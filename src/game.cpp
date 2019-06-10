@@ -250,6 +250,23 @@ void Game::mainLoop() {
       /* Handle other events case by case */
       SDL_GetMouseState(&x, &y);
       switch(e.type) {
+        case SDL_MOUSEWHEEL:
+          if(e.wheel.y > 0) { // scroll up
+             // Put code for handling "scroll up" here!
+          }
+          else if(e.wheel.y < 0)  {
+             // Put code for handling "scroll down" here!
+          }
+
+          if(e.wheel.x > 0) // scroll right
+          {
+             // ...
+          }
+          else if(e.wheel.x < 0) // scroll left
+          {
+             // ...
+          }
+          break;
         case SDL_MOUSEMOTION:
           mouseMoved(x, y);
           break;
