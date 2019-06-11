@@ -12,7 +12,7 @@
 
 /* Constructor sets up map units, creates a friendly spawner */
 Game::Game(Display* d): Square(d->getSize()), \
-                        context(GAME_CONTEXT_ZOOMED_OUT), t(0), paused(true), disp(d), outside(this) {
+                        context(GAME_CONTEXT_UNSELECTED), t(0), paused(true), disp(d), outside(this) {
   /* mapUnits is a vector */
   mapUnits.reserve(size * size);
   /* Units are created in the x direction; it fills the top row with map units
@@ -39,7 +39,7 @@ Game::Game(Display* d): Square(d->getSize()), \
     }
   }
 
-  selection = {0, 0, getRadius(), getRadius()};
+  selection = {0, 0, 1, 1};
   view = {0,0,getSize(),getSize()};
   // do something with this
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
@@ -66,59 +66,112 @@ void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
 
 /* Handle a mouse moved to (x,y) */
 void Game::mouseMoved(int x, int y) {
-      /* Width and height of each unit in current view */
-      int scaleX = size / view.w;
-      int scaleY = size / view.h;
-      int mouseUnitX = x / scaleX;
-      int mouseUnitY = y / scaleY;
-      if (mouseUnitX > view.w) mouseUnitX = view.w;
-      if (mouseUnitY > view.h) mouseUnitY = view.h;
-      if (mouseUnitX < 0) mouseUnitX = 0;
-      if (mouseUnitY < 0) mouseUnitY = 0;
-      int mouseUnitAbsoluteX = mouseUnitX + view.x;
-      int mouseUnitAbsoluteY = mouseUnitY + view.y;
+  /* Width and height of each unit in current view */
+  int scaleX = size / view.w;
+  int scaleY = size / view.h;
+  int mouseUnitX = x / scaleX;
+  int mouseUnitY = y / scaleY;
+  if (mouseUnitX > view.w) mouseUnitX = view.w;
+  if (mouseUnitY > view.h) mouseUnitY = view.h;
+  if (mouseUnitX < 0) mouseUnitX = 0;
+  if (mouseUnitY < 0) mouseUnitY = 0;
+  int mouseUnitAbsoluteX = mouseUnitX + view.x;
+  int mouseUnitAbsoluteY = mouseUnitY + view.y;
+  switch(context) {
+    case GAME_CONTEXT_UNSELECTED:
       selectedUnit = mapUnits[coordsToSqIndex(mouseUnitAbsoluteX, mouseUnitAbsoluteY, size)];
       selection.x = mouseUnitX * scaleX;
       selection.y = mouseUnitY * scaleY;
       selection.w = scaleX;
       selection.h = scaleY;
+      break;
+    case GAME_CONTEXT_SELECTING:
+      if (mouseUnitAbsoluteX > (int)selectedUnit->x) {
+        selection.w = (mouseUnitAbsoluteX - selectedUnit->x) * scaleX;
+      } else {
+        selection.x = mouseUnitX * scaleX;
+        selection.w = (selectedUnit->x - mouseUnitAbsoluteX) * scaleX;
+      }
+      if (mouseUnitAbsoluteY > (int)selectedUnit->y) {
+        selection.h = (mouseUnitAbsoluteY - selectedUnit->y) * scaleY;
+      } else {
+        selection.y = mouseUnitY * scaleY;
+        selection.h = (selectedUnit->y - mouseUnitAbsoluteY) * scaleY;
+      }
+
+      break;
+    case GAME_CONTEXT_SELECTED:
+      break;
+  }
 }
 
 /* Handle a left mouse click at (x,y) */
-void Game::leftMouseClicked(int x, int y) {
+void Game::leftMouseDown(int x, int y) {
+  context = GAME_CONTEXT_UNSELECTED;
+  mouseMoved(x,y);
+  context = GAME_CONTEXT_SELECTING;
+}
 
+void Game::leftMouseUp(int x, int y) {
+  context = GAME_CONTEXT_SELECTED;
 }
 
 /* Handle a right mouse click at (x,y) */
-void Game::rightMouseClicked(int x, int y) {
-
+void Game::rightMouseDown(int x, int y) {
+  context = GAME_CONTEXT_UNSELECTED;
 }
 
-
+// TODO for these: Handle non power of 2 window sizes
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
-  if (view.w >= 2) view.w /=2;
-  if (view.h >= 2) view.h /=2;
-  view.x = selectedUnit->x - view.w/2;
-  view.y = selectedUnit->y - view.h/2;
-  if (view.x < 0) view.x = 0;
-  if (view.y < 0) view.y = 0;
-  if (view.x > (int)size - view.w) view.x = size - view.w;
-  if (view.y > (int)size - view.h) view.y = size - view.h;
+  if (context == GAME_CONTEXT_UNSELECTED) {
+    if (view.w >= 2) view.w /=2;
+    if (view.h >= 2) view.h /=2;
+    view.x = selectedUnit->x - view.w/2;
+    view.y = selectedUnit->y - view.h/2;
+    if (view.x < 0) view.x = 0;
+    if (view.y < 0) view.y = 0;
+    if (view.x > (int)size - view.w) view.x = size - view.w;
+    if (view.y > (int)size - view.h) view.y = size - view.h;
+  }
   mouseMoved(x,y);
 }
 
 void Game::zoomViewOut(int x, int y) {
   mouseMoved(x,y);
-  if (view.w <= getRadius()) view.w *= 2;
-  if (view.h <= getRadius()) view.h *= 2;
-  view.x = selectedUnit->x - view.w/2;
-  view.y = selectedUnit->y - view.h/2;
-  if (view.x < 0) view.x = 0;
-  if (view.y < 0) view.y = 0;
-  if (view.x > (int)size - view.w) view.x = size - view.w;
-  if (view.y > (int)size - view.h) view.y = size - view.h;
+  if (context == GAME_CONTEXT_UNSELECTED) {
+    if (view.w <= getRadius()) view.w *= 2;
+    if (view.h <= getRadius()) view.h *= 2;
+    view.x = selectedUnit->x - view.w/2;
+    view.y = selectedUnit->y - view.h/2;
+    if (view.x < 0) view.x = 0;
+    if (view.y < 0) view.y = 0;
+    if (view.x > (int)size - view.w) view.x = size - view.w;
+    if (view.y > (int)size - view.h) view.y = size - view.h;
+    if (view.w >= getSize()-1 || view.h >= getSize()-1) {
+      view.w = getSize();
+      view.h = getSize();
+      view.x = 0;
+      view.y = 0;
+    }
+  }
   mouseMoved(x,y);
+}
+
+void Game::panViewLeft() {
+  if (view.x > 0) view.x--;
+}
+
+void Game::panViewRight() {
+  if (view.x < (int)size - view.w) view.x++;
+}
+
+void Game::panViewUp() {
+  if (view.y > 0) view.y--;
+}
+
+void Game::panViewDown() {
+  if (view.y < (int)size - view.h) view.y++;
 }
 
 /* Draw the current game screen based on context */
@@ -141,31 +194,24 @@ void Game::draw() {
   }
   disp->setDrawColorWhite();
   disp->drawRect(&selection);
-  if (selectedUnit->type != UNIT_TYPE_EMPTY) {
     std::string unitTypeString = "";
     switch(selectedUnit->type) {
       case UNIT_TYPE_AGENT:
-      unitTypeString = "Agent @ ";
-      break;
+        unitTypeString = "Agent @ ";
+        break;
       case UNIT_TYPE_SPAWNER:
-      unitTypeString = "Spawner @ ";
+        unitTypeString = "Spawner @ ";
+        break;
     }
     unitTypeString += std::to_string(selectedUnit->x) + ", " + std::to_string(selectedUnit->y);
     int unitTypeStringWidth;
     int unitTypeStringHeight;
     const char *unitInfoCstr = unitTypeString.c_str();
     disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
-    disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, unitTypeStringHeight);
-  }
+    disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, 0);
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
-  // Display coordinates of current selection
-  const char *s = (std::to_string(selection.x) + ", " + std::to_string(selection.y)).c_str();
-
-  int w;
-  disp->sizeText(s, &w, nullptr);
-  disp->drawText(s, disp->getSize() - w, 0);
 }
 
 /* Update the spawners, which will update the agents they track */
@@ -197,16 +243,23 @@ void Game::mainLoop() {
           mouseMoved(x, y);
           break;
         case SDL_MOUSEBUTTONDOWN:
-          SDL_GetMouseState(&x, &y);
           switch(e.button.button) {
             case SDL_BUTTON_LEFT:
-              leftMouseClicked(x, y);
+              leftMouseDown(x, y);
               break;
             case SDL_BUTTON_RIGHT:
-              rightMouseClicked(x, y);
+              rightMouseDown(x, y);
               break;
           }
           mouseMoved(x, y);
+          break;
+        case SDL_MOUSEBUTTONUP:
+          switch(e.button.button) {
+            case SDL_BUTTON_LEFT:
+              leftMouseUp(x, y);
+              break;
+          }
+          mouseMoved(x,y);
           break;
         case SDL_KEYDOWN:
           switch(e.key.keysym.sym) {
@@ -214,10 +267,20 @@ void Game::mainLoop() {
               paused = !paused;
               break;
             case SDLK_UP:
-              zoomViewOut(x,y);
+              panViewUp();
+              mouseMoved(x,y);
               break;
             case SDLK_DOWN:
-              zoomViewIn(x,y);
+              panViewDown();
+              mouseMoved(x,y);
+              break;
+            case SDLK_RIGHT:
+              panViewRight();
+              mouseMoved(x,y);
+              break;
+            case SDLK_LEFT:
+              panViewLeft();
+              mouseMoved(x,y);
               break;
           }
           break;

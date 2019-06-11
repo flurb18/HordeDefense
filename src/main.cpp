@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
   /* Set the random number generator seed */
   srand(time(0));
 
-  const int WIN_SIZE = 768;
+  const int WIN_SIZE = 512;
 
   Display d = Display(WIN_SIZE);
   Game g = Game(&d);

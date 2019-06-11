@@ -13,8 +13,9 @@ class Spawner;
 
 /* Various game contexts */
 const int GAME_CONTEXT_EXIT = 0;
-const int GAME_CONTEXT_ZOOMED_IN = 1;
-const int GAME_CONTEXT_ZOOMED_OUT = 2;
+const int GAME_CONTEXT_UNSELECTED = 1;
+const int GAME_CONTEXT_SELECTING = 2;
+const int GAME_CONTEXT_SELECTED = 3;
 
 /* Data structure to contain information about a team; unique team number and
    color */
@@ -37,10 +38,15 @@ class Game: public Square {
 private:
   Spawner* spawn;
   void mouseMoved(int, int);
-  void leftMouseClicked(int, int);
-  void rightMouseClicked(int, int);
+  void leftMouseDown(int, int);
+  void leftMouseUp(int, int);
+  void rightMouseDown(int, int);
   void zoomViewIn(int, int);
   void zoomViewOut(int, int);
+  void panViewLeft();
+  void panViewRight();
+  void panViewUp();
+  void panViewDown();
   void draw();
   void update();
 public:
