@@ -98,7 +98,6 @@ void Game::mouseMoved(int x, int y) {
         selection.y = mouseUnitY * scaleY;
         selection.h = (selectedUnit->y - mouseUnitAbsoluteY) * scaleY;
       }
-
       break;
     case GAME_CONTEXT_SELECTED:
       break;
@@ -178,16 +177,17 @@ void Game::panViewDown() {
 void Game::draw() {
   disp->fillBlack();
   MapUnit* first = mapUnits[coordsToSqIndex(view.x, view.y, size)];
+  int scaleX = size / view.w;
+  int scaleY = size / view.h;
   /* Iterate over selection */
   for (MapUnit::iterator iter = first->getIterator(view.w, view.h); \
   iter.hasNext(); iter++) {
     if (iter->type != UNIT_TYPE_EMPTY) {
       if (iter->team) disp->setDrawColor(iter->team);
       else disp->setDrawColorWhite();
-      int scaleX = size / view.w;
-      int scaleY = size / view.h;
       int scaledX = (iter->x - view.x) * scaleX;
       int scaledY = (iter->y - view.y) * scaleY;
+      // Checker the spawner
       if (iter->type == UNIT_TYPE_SPAWNER && ((iter.i + iter.j) % 2) == 0) disp->setDrawColorBlack();
       disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
     }

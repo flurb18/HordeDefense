@@ -1,5 +1,6 @@
 CC=g++
 CFLAGS=-I$(IDIR) -Wall
+EXECNAME=hd
 
 
 ODIR = obj
@@ -19,11 +20,11 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 $(ODIR)/%.o: src/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-hd: $(OBJ)
+$(EXECNAME): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
 	rm -f $(ODIR)/*.o
-	rm hd
+	rm $(EXECNAME)
