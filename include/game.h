@@ -47,6 +47,7 @@ private:
   void panViewRight();
   void panViewUp();
   void panViewDown();
+  MapUnit::iterator getSelectionIterator();
   void draw();
   void update();
 public:
@@ -55,6 +56,7 @@ public:
   unsigned long long int t;
   /* Whether or not the game is currently paused */
   bool paused;
+  int scaleX, scaleY;
   SDL_Rect selection;
   SDL_Rect view;
   std::vector<MapUnit*> mapUnits;

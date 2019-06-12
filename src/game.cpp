@@ -42,9 +42,12 @@ Game::Game(Display* d): Square(d->getSize()), \
   selection = {0, 0, 1, 1};
   view = {0,0,getSize(),getSize()};
   // do something with this
+  scaleX = size / view.w;
+  scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
   selectedUnit = spawnUnit;
   spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
+  
 }
 
 
@@ -67,8 +70,6 @@ void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
 /* Handle a mouse moved to (x,y) */
 void Game::mouseMoved(int x, int y) {
   /* Width and height of each unit in current view */
-  int scaleX = size / view.w;
-  int scaleY = size / view.h;
   int mouseUnitX = x / scaleX;
   int mouseUnitY = y / scaleY;
   if (mouseUnitX > view.w) mouseUnitX = view.w;
@@ -86,18 +87,20 @@ void Game::mouseMoved(int x, int y) {
       selection.h = scaleY;
       break;
     case GAME_CONTEXT_SELECTING:
-      if (mouseUnitAbsoluteX > (int)selectedUnit->x) {
+      if (mouseUnitAbsoluteX >= (int)selectedUnit->x) {
         selection.w = (mouseUnitAbsoluteX - selectedUnit->x) * scaleX;
       } else {
         selection.x = mouseUnitX * scaleX;
         selection.w = (selectedUnit->x - mouseUnitAbsoluteX) * scaleX;
       }
-      if (mouseUnitAbsoluteY > (int)selectedUnit->y) {
+      if (mouseUnitAbsoluteY >= (int)selectedUnit->y) {
         selection.h = (mouseUnitAbsoluteY - selectedUnit->y) * scaleY;
       } else {
         selection.y = mouseUnitY * scaleY;
         selection.h = (selectedUnit->y - mouseUnitAbsoluteY) * scaleY;
       }
+      if (selection.w == 0) selection.w = scaleX;
+      if (selection.h == 0) selection.h = scaleY;
       break;
     case GAME_CONTEXT_SELECTED:
       break;
@@ -133,6 +136,8 @@ void Game::zoomViewIn(int x, int y) {
     if (view.x > (int)size - view.w) view.x = size - view.w;
     if (view.y > (int)size - view.h) view.y = size - view.h;
   }
+  scaleX = size / view.w;
+  scaleY = size / view.h;
   mouseMoved(x,y);
 }
 
@@ -154,6 +159,8 @@ void Game::zoomViewOut(int x, int y) {
       view.y = 0;
     }
   }
+  scaleX = size / view.w;
+  scaleY = size / view.h;
   mouseMoved(x,y);
 }
 
@@ -173,12 +180,19 @@ void Game::panViewDown() {
   if (view.y < (int)size - view.h) view.y++;
 }
 
+MapUnit::iterator Game::getSelectionIterator() {
+  int selectionUnitX = (selection.x / scaleX) + view.x;
+  int selectionUnitY = (selection.y / scaleY) + view.y;
+  int selectionUnitWidth = selection.w / scaleX;
+  int selectionUnitHeight = selection.h / scaleY;
+  MapUnit* first = mapUnits[coordsToSqIndex(selectionUnitX, selectionUnitY, size)];
+  return first->getIterator(selectionUnitWidth, selectionUnitHeight);
+}
+
 /* Draw the current game screen based on context */
 void Game::draw() {
   disp->fillBlack();
   MapUnit* first = mapUnits[coordsToSqIndex(view.x, view.y, size)];
-  int scaleX = size / view.w;
-  int scaleY = size / view.h;
   /* Iterate over selection */
   for (MapUnit::iterator iter = first->getIterator(view.w, view.h); \
   iter.hasNext(); iter++) {
@@ -191,6 +205,14 @@ void Game::draw() {
       if (iter->type == UNIT_TYPE_SPAWNER && ((iter.i + iter.j) % 2) == 0) disp->setDrawColorBlack();
       disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
     }
+  }
+  disp->setDrawColorBlack();
+  if (context == GAME_CONTEXT_SELECTED) {
+  for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
+    int scaledX = (iter->x - view.x) * scaleX;
+    int scaledY = (iter->y - view.y) * scaleY;
+    if (t % 20 > 10) disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
+  }
   }
   disp->setDrawColorWhite();
   disp->drawRect(&selection);
