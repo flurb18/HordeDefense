@@ -56,9 +56,13 @@ public:
   unsigned long long int t;
   /* Whether or not the game is currently paused */
   bool paused;
+  /* Scale of current game view; size of units in pixels */
   int scaleX, scaleY;
+  /* Current selection of units; PIXEL coordinates in view*/
   SDL_Rect selection;
+  /* Current view of units; MAP UNIT coordinates */
   SDL_Rect view;
+  /* Vector of map units */
   std::vector<MapUnit*> mapUnits;
   Display* disp;
   MapUnit outside;

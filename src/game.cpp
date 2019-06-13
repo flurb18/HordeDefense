@@ -47,7 +47,7 @@ Game::Game(Display* d): Square(d->getSize()), \
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
   selectedUnit = spawnUnit;
   spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
-  
+
 }
 
 
@@ -208,11 +208,11 @@ void Game::draw() {
   }
   disp->setDrawColorBlack();
   if (context == GAME_CONTEXT_SELECTED) {
-  for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
-    int scaledX = (iter->x - view.x) * scaleX;
-    int scaledY = (iter->y - view.y) * scaleY;
-    if (t % 20 > 10) disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
-  }
+    for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
+      int scaledX = (iter->x - view.x) * scaleX;
+      int scaledY = (iter->y - view.y) * scaleY;
+      if (t % 20 > 10) disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
+    }
   }
   disp->setDrawColorWhite();
   disp->drawRect(&selection);
@@ -310,8 +310,8 @@ void Game::mainLoop() {
     }
     if (!paused) {
       update();
-      t++;
     }
+    t++;
     draw();
     disp->update();
     disp->wait(10);

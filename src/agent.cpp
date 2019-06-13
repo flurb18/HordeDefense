@@ -25,10 +25,18 @@ void Agent::update() {
   std::vector<int> options;
   switch(objective) {
     case OBJECTIVE_TYPE_EXPLORE:
-      if (paths->visible[unit->left->index] == false) options.push_back(0);
-      if (paths->visible[unit->right->index] == false) options.push_back(1);
-      if (paths->visible[unit->up->index] == false) options.push_back(2);
-      if (paths->visible[unit->down->index] == false) options.push_back(3);
+      if (unit->left->type != UNIT_TYPE_OUTSIDE) {
+        if (paths->visible[unit->left->index] == false) options.push_back(0);
+      }
+      if (unit->right->type != UNIT_TYPE_OUTSIDE) {
+        if (paths->visible[unit->right->index] == false) options.push_back(1);
+      }
+      if (unit->up->type != UNIT_TYPE_OUTSIDE) {
+        if (paths->visible[unit->up->index] == false) options.push_back(2);
+      }
+      if (unit->down->type != UNIT_TYPE_OUTSIDE) {
+        if (paths->visible[unit->down->index] == false) options.push_back(3);
+      }
       int exploreSelection;
       if (options.size() != 0) exploreSelection = options[rand() % options.size()];
       else exploreSelection = rand() % 4;
