@@ -197,7 +197,7 @@ MapUnit::iterator Game::getSelectionIterator() {
 void Game::draw() {
   disp->fillBlack();
   MapUnit* first = mapUnits[coordsToSqIndex(view.x, view.y, size)];
-  /* Iterate over selection */
+  /* Iterate over view */
   for (MapUnit::iterator iter = first->getIterator(view.w, view.h); \
   iter.hasNext(); iter++) {
     if (iter->type != UNIT_TYPE_EMPTY) {
@@ -210,6 +210,7 @@ void Game::draw() {
       disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
     }
   }
+  /* Blink selection */
   disp->setDrawColorBlack();
   if (context == GAME_CONTEXT_SELECTED) {
     for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
@@ -235,7 +236,6 @@ void Game::draw() {
   const char *unitInfoCstr = unitTypeString.c_str();
   disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
   disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, 0);
-  disp->drawText(std::to_string(view.w).c_str(), 0, unitTypeStringHeight);
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
