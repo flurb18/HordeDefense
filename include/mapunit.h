@@ -15,21 +15,21 @@ struct Team;
 struct MapUnit {
   /* An iterator for traversing through a predefined rectangle of mapunits */
   class iterator {
-    private:
-      int w, h;
-      bool hasNextUnit;
-      MapUnit* current;
-      MapUnit* firstInRow;
-      void next();
-    public:
-      int j, i;
-      iterator(MapUnit* first, int w_, int h_): w(w_), h(h_), hasNextUnit(true), \
-      current(first), firstInRow(first), j(0), i(0) {};
-      iterator operator++() {iterator it = *this; next(); return it;};
-      iterator operator++(int junk) {next(); return *this;};
-      MapUnit& operator*() {return *current;};
-      MapUnit* operator->() {return current;};
-      bool hasNext() {return hasNextUnit;};
+  private:
+    int w, h;
+    bool hasNextUnit;
+    MapUnit* current;
+    MapUnit* firstInRow;
+    void next();
+  public:
+    int j, i;
+    iterator(MapUnit* first, int w_, int h_): w(w_), h(h_), hasNextUnit(true), \
+    current(first), firstInRow(first), j(0), i(0) {};
+    iterator operator++() {iterator it = *this; next(); return it;};
+    iterator operator++(int junk) {next(); return *this;};
+    MapUnit& operator*() {return *current;};
+    MapUnit* operator->() {return current;};
+    bool hasNext() {return hasNextUnit;};
   };
   unsigned int x, y, index;
   int type;

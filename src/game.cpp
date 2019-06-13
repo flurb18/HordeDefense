@@ -41,7 +41,6 @@ Game::Game(Display* d): Square(d->getSize()), \
 
   selection = {0, 0, 1, 1};
   view = {0,0,getSize(),getSize()};
-  // do something with this
   scaleX = size / view.w;
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
