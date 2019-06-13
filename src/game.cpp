@@ -39,11 +39,16 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), paused(tru
     }
   }
 
+  /* Set initial selection to just be first map unit */
   selection = {0, 0, 1, 1};
+  /* Set initial view to be the maximum power of two under the game size, centered
+     around the middle of the board */
   maxViewSize = (int)pow(2,(int)log2(size));
   int viewOffset = (size - maxViewSize)/2;
   view = {viewOffset,viewOffset,maxViewSize,maxViewSize};
+  /* Initialize the display */
   disp = new Display(maxViewSize);
+  /* Set scale variables */
   scaleX = size / view.w;
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
@@ -125,7 +130,6 @@ void Game::rightMouseDown(int x, int y) {
   context = GAME_CONTEXT_UNSELECTED;
 }
 
-// TODO for these: Handle non power of 2 window sizes
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
   if (context == GAME_CONTEXT_UNSELECTED) {
@@ -236,9 +240,7 @@ void Game::draw() {
   const char *unitInfoCstr = unitTypeString.c_str();
   disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
   disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, 0);
-  if (paused) {
-    disp->drawText("PAUSED", 0, 0);
-  }
+  if (paused) disp->drawText("PAUSED", 0, 0);
 }
 
 /* Update the spawners, which will update the agents they track */
@@ -313,9 +315,7 @@ void Game::mainLoop() {
           break;
       }
     }
-    if (!paused) {
-      update();
-    }
+    if (!paused) update();
     t++;
     draw();
     disp->update();
