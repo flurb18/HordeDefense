@@ -10,10 +10,8 @@ int main(int argc, char* argv[]) {
   /* Set the random number generator seed */
   srand(time(0));
 
-  const int WIN_SIZE = 512;
+  const int GAME_SIZE = 1000;
 
-  Display d = Display(WIN_SIZE);
-  Game g = Game(&d);
+  Game g = Game(GAME_SIZE);
   g.mainLoop();
-  d.end();
 }

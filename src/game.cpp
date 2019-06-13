@@ -4,6 +4,7 @@
 #include <SDL2/SDL_rect.h>
 #include <iostream>
 #include <string>
+#include <math.h>
 
 #include "agent.h"
 #include "display.h"
@@ -11,8 +12,7 @@
 
 
 /* Constructor sets up map units, creates a friendly spawner */
-Game::Game(Display* d): Square(d->getSize()), \
-                        context(GAME_CONTEXT_UNSELECTED), t(0), paused(true), disp(d), outside(this) {
+Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), paused(true), outside(this) {
   /* mapUnits is a vector */
   mapUnits.reserve(size * size);
   /* Units are created in the x direction; it fills the top row with map units
@@ -40,7 +40,10 @@ Game::Game(Display* d): Square(d->getSize()), \
   }
 
   selection = {0, 0, 1, 1};
-  view = {0,0,getSize(),getSize()};
+  maxViewSize = (int)pow(2,(int)log2(size));
+  int viewOffset = (size - maxViewSize)/2;
+  view = {viewOffset,viewOffset,maxViewSize,maxViewSize};
+  disp = new Display(maxViewSize);
   scaleX = size / view.w;
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
@@ -126,8 +129,8 @@ void Game::rightMouseDown(int x, int y) {
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
   if (context == GAME_CONTEXT_UNSELECTED) {
-    if (view.w >= 2) view.w /=2;
-    if (view.h >= 2) view.h /=2;
+    if (view.w >= 8) view.w /=2;
+    if (view.h >= 8) view.h /=2;
     view.x = selectedUnit->x - view.w/2;
     view.y = selectedUnit->y - view.h/2;
     if (view.x < 0) view.x = 0;
@@ -135,48 +138,50 @@ void Game::zoomViewIn(int x, int y) {
     if (view.x > (int)size - view.w) view.x = size - view.w;
     if (view.y > (int)size - view.h) view.y = size - view.h;
   }
-  scaleX = size / view.w;
-  scaleY = size / view.h;
+  scaleX = maxViewSize / view.w;
+  scaleY = maxViewSize / view.h;
   mouseMoved(x,y);
 }
 
 void Game::zoomViewOut(int x, int y) {
   mouseMoved(x,y);
-  if (context == GAME_CONTEXT_UNSELECTED) {
-    if (view.w <= getRadius()) view.w *= 2;
-    if (view.h <= getRadius()) view.h *= 2;
+  if (context == GAME_CONTEXT_UNSELECTED && view.w < maxViewSize) {
+    view.w *= 2;
+    view.h *= 2;
     view.x = selectedUnit->x - view.w/2;
     view.y = selectedUnit->y - view.h/2;
     if (view.x < 0) view.x = 0;
     if (view.y < 0) view.y = 0;
     if (view.x > (int)size - view.w) view.x = size - view.w;
     if (view.y > (int)size - view.h) view.y = size - view.h;
-    if (view.w >= getSize()-1 || view.h >= getSize()-1) {
-      view.w = getSize();
-      view.h = getSize();
-      view.x = 0;
-      view.y = 0;
+    if (view.w >= maxViewSize-1 || view.h >= maxViewSize-1) {
+      view.w = maxViewSize;
+      view.h = maxViewSize;
     }
   }
-  scaleX = size / view.w;
-  scaleY = size / view.h;
+  scaleX = maxViewSize / view.w;
+  scaleY = maxViewSize / view.h;
   mouseMoved(x,y);
 }
 
 void Game::panViewLeft() {
-  if (view.x > 0) view.x--;
+  view.x -= view.w/4;
+  if (view.x < 0) view.x = 0;
 }
 
 void Game::panViewRight() {
-  if (view.x < (int)size - view.w) view.x++;
+  view.x += view.w/4;
+  if (view.x > (int)size - view.w) view.x = size - view.w;
 }
 
 void Game::panViewUp() {
-  if (view.y > 0) view.y--;
+  view.y -= view.h/4;
+  if (view.y < 0) view.y = 0;
 }
 
 void Game::panViewDown() {
-  if (view.y < (int)size - view.h) view.y++;
+  view.y += view.h/4;
+  if (view.y > (int)size - view.h) view.y = size - view.h;
 }
 
 MapUnit::iterator Game::getSelectionIterator() {
@@ -215,21 +220,22 @@ void Game::draw() {
   }
   disp->setDrawColorWhite();
   disp->drawRect(&selection);
-    std::string unitTypeString = "";
-    switch(selectedUnit->type) {
-      case UNIT_TYPE_AGENT:
-        unitTypeString = "Agent @ ";
-        break;
-      case UNIT_TYPE_SPAWNER:
-        unitTypeString = "Spawner @ ";
-        break;
-    }
-    unitTypeString += std::to_string(selectedUnit->x) + ", " + std::to_string(selectedUnit->y);
-    int unitTypeStringWidth;
-    int unitTypeStringHeight;
-    const char *unitInfoCstr = unitTypeString.c_str();
-    disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
-    disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, 0);
+  std::string unitTypeString = "";
+  switch(selectedUnit->type) {
+    case UNIT_TYPE_AGENT:
+    unitTypeString = "Agent @ ";
+    break;
+    case UNIT_TYPE_SPAWNER:
+    unitTypeString = "Spawner @ ";
+    break;
+  }
+  unitTypeString += std::to_string(selectedUnit->x) + ", " + std::to_string(selectedUnit->y);
+  int unitTypeStringWidth;
+  int unitTypeStringHeight;
+  const char *unitInfoCstr = unitTypeString.c_str();
+  disp->sizeText(unitInfoCstr, &unitTypeStringWidth, &unitTypeStringHeight);
+  disp->drawText(unitInfoCstr, disp->getSize() - unitTypeStringWidth, 0);
+  disp->drawText(std::to_string(view.w).c_str(), 0, unitTypeStringHeight);
   if (paused) {
     disp->drawText("PAUSED", 0, 0);
   }
@@ -330,4 +336,5 @@ Game::~Game() {
     delete mapUnits[i];
   }
   mapUnits.clear();
+  disp->end();
 }

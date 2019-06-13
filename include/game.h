@@ -62,6 +62,8 @@ public:
   SDL_Rect selection;
   /* Current view of units; MAP UNIT coordinates */
   SDL_Rect view;
+  /* Maximum size the view can be, equal to the largest power of 2 under size */
+  int maxViewSize;
   /* Vector of map units */
   std::vector<MapUnit*> mapUnits;
   Display* disp;
@@ -70,7 +72,7 @@ public:
   unsigned int coordsToSqIndex(int, int, int);
   unsigned int dispCoordsToSqIndex(int, int, int);
   void indexToSqCoords(int, int, int*, int*);
-  Game(Display*);
+  Game(int);
   ~Game();
   void mainLoop();
 };
