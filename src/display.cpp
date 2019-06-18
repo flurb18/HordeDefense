@@ -38,7 +38,7 @@ Display::Display(int s) : Square(s) {
   fontFile = "/usr/share/fonts/TTF/Roboto-Regular.ttf";
   font = TTF_OpenFont(fontFile, 16);
   if (font == nullptr) {
-    std::cerr << "Font could not be laoded!\n";
+    std::cerr << "Font could not be loaded!\n";
     std::cerr << TTF_GetError() << std::endl;
     throw TTF_GetError();
   }

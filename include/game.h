@@ -54,6 +54,8 @@ public:
   int context;
   /* Game ticks since this object was created */
   unsigned long long int t;
+  /* Display ticks since this object was created */
+  unsigned long long int dispT;
   /* Whether or not the game is currently paused */
   bool paused;
   /* Scale of current game view; size of units in pixels */
@@ -62,8 +64,6 @@ public:
   SDL_Rect selection;
   /* Current view of units; MAP UNIT coordinates */
   SDL_Rect view;
-  /* Maximum size the view can be, equal to the largest power of 2 under size */
-  int maxViewSize;
   /* Vector of map units */
   std::vector<MapUnit*> mapUnits;
   Display* disp;
