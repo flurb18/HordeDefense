@@ -49,12 +49,11 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   /* Set scale variables */
   scaleX = size / view.w;
   scaleY = size / view.h;
-  MapUnit* spawnUnit = mapUnits[size/2 * size + size/2];
+  MapUnit* spawnUnit = mapUnits[coordsToSqIndex(size/2,size/2,size)];
   selectedUnit = spawnUnit;
   spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
 
 }
-
 
 /* The following three methods are helper methods to compute the array index of
    a certain spot in an array, or vice versa*/
@@ -112,13 +111,14 @@ void Game::mouseMoved(int x, int y) {
   }
 }
 
-/* Handle a left mouse click at (x,y) */
+/* Handle a left mouse down at (x,y) */
 void Game::leftMouseDown(int x, int y) {
   context = GAME_CONTEXT_UNSELECTED;
   mouseMoved(x,y);
   context = GAME_CONTEXT_SELECTING;
 }
 
+/* Handle a left mouse up at (x,y) */
 void Game::leftMouseUp(int x, int y) {
   context = GAME_CONTEXT_SELECTED;
 }
@@ -128,6 +128,7 @@ void Game::rightMouseDown(int x, int y) {
   context = GAME_CONTEXT_UNSELECTED;
 }
 
+/* Self explanatory zooming / panning functions */
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
   if (context == GAME_CONTEXT_UNSELECTED) {
@@ -194,6 +195,7 @@ void Game::panViewDown() {
   }
 }
 
+/* Get MapUnit iterator of the MapUnits in the current selected region */
 MapUnit::iterator Game::getSelectionIterator() {
   int selectionUnitX = (selection.x / scaleX) + view.x;
   int selectionUnitY = (selection.y / scaleY) + view.y;
