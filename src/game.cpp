@@ -132,16 +132,14 @@ void Game::rightMouseDown(int x, int y) {
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
   MapUnit::iterator iter = getSelectionIterator();
-  //if (context == GAME_CONTEXT_UNSELECTED) {
-    if (view.w >= 8) view.w /=2;
-    if (view.h >= 8) view.h /=2;
-    view.x = selectedUnit->x - view.w/2;
-    view.y = selectedUnit->y - view.h/2;
-    if (view.x < 0) view.x = 0;
-    if (view.y < 0) view.y = 0;
-    if (view.x > (int)size - view.w) view.x = size - view.w;
-    if (view.y > (int)size - view.h) view.y = size - view.h;
-  //}
+  if (view.w >= 8) view.w /=2;
+  if (view.h >= 8) view.h /=2;
+  view.x = selectedUnit->x - view.w/2;
+  view.y = selectedUnit->y - view.h/2;
+  if (view.x < 0) view.x = 0;
+  if (view.y < 0) view.y = 0;
+  if (view.x > (int)size - view.w) view.x = size - view.w;
+  if (view.y > (int)size - view.h) view.y = size - view.h;
   scaleX = disp->getSize() / view.w;
   scaleY = disp->getSize() / view.h;
   adjustSelection(iter);
@@ -151,7 +149,7 @@ void Game::zoomViewIn(int x, int y) {
 void Game::zoomViewOut(int x, int y) {
   mouseMoved(x,y);
   MapUnit::iterator iter = getSelectionIterator();
-  if (/*context == GAME_CONTEXT_UNSELECTED &&*/ view.w < disp->getSize()) {
+  if (view.w < disp->getSize()) {
     view.w *= 2;
     view.h *= 2;
     view.x = selectedUnit->x - view.w/2;
@@ -199,6 +197,8 @@ void Game::panViewDown() {
   adjustSelection(iter);
 }
 
+/* Adjust the selection rectangle based on the new view / scale, using the
+    iterator of the selection so we remember where it is */
 void Game::adjustSelection(MapUnit::iterator iter) {
   selection.x = (iter->x - view.x) * scaleX;
   selection.y = (iter->y - view.y) * scaleY;
