@@ -131,7 +131,8 @@ void Game::rightMouseDown(int x, int y) {
 /* Self explanatory zooming / panning functions */
 void Game::zoomViewIn(int x, int y) {
   mouseMoved(x,y);
-  if (context == GAME_CONTEXT_UNSELECTED) {
+  MapUnit::iterator iter = getSelectionIterator();
+  //if (context == GAME_CONTEXT_UNSELECTED) {
     if (view.w >= 8) view.w /=2;
     if (view.h >= 8) view.h /=2;
     view.x = selectedUnit->x - view.w/2;
@@ -140,15 +141,17 @@ void Game::zoomViewIn(int x, int y) {
     if (view.y < 0) view.y = 0;
     if (view.x > (int)size - view.w) view.x = size - view.w;
     if (view.y > (int)size - view.h) view.y = size - view.h;
-  }
+  //}
   scaleX = disp->getSize() / view.w;
   scaleY = disp->getSize() / view.h;
+  adjustSelection(iter);
   mouseMoved(x,y);
 }
 
 void Game::zoomViewOut(int x, int y) {
   mouseMoved(x,y);
-  if (context == GAME_CONTEXT_UNSELECTED && view.w < disp->getSize()) {
+  MapUnit::iterator iter = getSelectionIterator();
+  if (/*context == GAME_CONTEXT_UNSELECTED &&*/ view.w < disp->getSize()) {
     view.w *= 2;
     view.h *= 2;
     view.x = selectedUnit->x - view.w/2;
@@ -164,35 +167,43 @@ void Game::zoomViewOut(int x, int y) {
   }
   scaleX = disp->getSize() / view.w;
   scaleY = disp->getSize() / view.h;
+  adjustSelection(iter);
   mouseMoved(x,y);
 }
 
 void Game::panViewLeft() {
-  if (context == GAME_CONTEXT_UNSELECTED) {
-    view.x -= view.w/4;
-    if (view.x < 0) view.x = 0;
-  }
+  MapUnit::iterator iter = getSelectionIterator();
+  view.x -= view.w/4;
+  if (view.x < 0) view.x = 0;
+  adjustSelection(iter);
 }
 
 void Game::panViewRight() {
-  if (context == GAME_CONTEXT_UNSELECTED) {
-    view.x += view.w/4;
-    if (view.x > (int)size - view.w) view.x = size - view.w;
-  }
+  MapUnit::iterator iter = getSelectionIterator();
+  view.x += view.w/4;
+  if (view.x > (int)size - view.w) view.x = size - view.w;
+  adjustSelection(iter);
 }
 
 void Game::panViewUp() {
-  if (context == GAME_CONTEXT_UNSELECTED) {
-    view.y -= view.h/4;
-    if (view.y < 0) view.y = 0;
-  }
+  MapUnit::iterator iter = getSelectionIterator();
+  view.y -= view.h/4;
+  if (view.y < 0) view.y = 0;
+  adjustSelection(iter);
 }
 
 void Game::panViewDown() {
-  if (context == GAME_CONTEXT_UNSELECTED) {
-    view.y += view.h/4;
-    if (view.y > (int)size - view.h) view.y = size - view.h;
-  }
+  MapUnit::iterator iter = getSelectionIterator();
+  view.y += view.h/4;
+  if (view.y > (int)size - view.h) view.y = size - view.h;
+  adjustSelection(iter);
+}
+
+void Game::adjustSelection(MapUnit::iterator iter) {
+  selection.x = (iter->x - view.x) * scaleX;
+  selection.y = (iter->y - view.y) * scaleY;
+  selection.w = iter.w * scaleX;
+  selection.h = iter.h * scaleY;
 }
 
 /* Get MapUnit iterator of the MapUnits in the current selected region */
@@ -218,7 +229,7 @@ void Game::draw() {
       int scaledX = (iter->x - view.x) * scaleX;
       int scaledY = (iter->y - view.y) * scaleY;
       // Checker the spawner
-      if (iter->type == UNIT_TYPE_SPAWNER && ((iter.i + iter.j) % 2) == 0) disp->setDrawColorBlack();
+      if (iter->type == UNIT_TYPE_SPAWNER && ((iter->x + iter->y) % 2) == 0) disp->setDrawColorBlack();
       disp->drawRectFilled(scaledX, scaledY, scaleX, scaleY);
     }
   }

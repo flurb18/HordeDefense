@@ -16,15 +16,14 @@ struct MapUnit {
   /* An iterator for traversing through a predefined rectangle of mapunits */
   class iterator {
   private:
-    int w, h;
     bool hasNextUnit;
     MapUnit* current;
     MapUnit* firstInRow;
     void next();
   public:
-    int j, i;
-    iterator(MapUnit* first, int w_, int h_): w(w_), h(h_), hasNextUnit(true), \
-    current(first), firstInRow(first), j(0), i(0) {};
+    int j, i, w, h;
+    iterator(MapUnit* first, int w_, int h_): hasNextUnit(true), \
+    current(first), firstInRow(first), j(0), i(0), w(w_), h(h_){};
     iterator operator++() {iterator it = *this; next(); return it;};
     iterator operator++(int junk) {next(); return *this;};
     MapUnit& operator*() {return *current;};

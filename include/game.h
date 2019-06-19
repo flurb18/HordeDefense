@@ -48,6 +48,7 @@ private:
   void panViewUp();
   void panViewDown();
   MapUnit::iterator getSelectionIterator();
+  void adjustSelection(MapUnit::iterator);
   void draw();
   void update();
 public:
