@@ -9,7 +9,7 @@
 
 Agent::Agent(Game* g, Paths* p, MapUnit* m, const Team* t):
               paths(p), team(t), game(g), unit(m) {
-  objective = OBJECTIVE_TYPE_EXPLORE;
+  objective = OBJECTIVE_TYPE_FOLLOW_SCENT;
   dx = 0;
   dy = 0;
   unit->agent = this;
@@ -51,6 +51,33 @@ void Agent::update() {
       if (!move()) {
         dx = 0;
         dy = 0;
+      }
+      break;
+    case OBJECTIVE_TYPE_FOLLOW_SCENT:
+      double maxAvailableScent = 0.0;
+      // If none of the adjacent squares have any scent, try a random one
+      int choice = rand() % 4;
+      if (unit->left->scent > maxAvailableScent) {
+          choice = 0;
+          maxAvailableScent = unit->left->scent;
+      }
+      if (unit->right->scent > maxAvailableScent) {
+        choice = 1;
+        maxAvailableScent = unit->right->scent;
+      }
+      if (unit->up->scent > maxAvailableScent) {
+        choice = 2;
+        maxAvailableScent = unit->up->scent;
+      }
+      if (unit->down->scent > maxAvailableScent) {
+        choice = 3;
+        maxAvailableScent = unit->down->scent;
+      }
+      dx = incrementOptions[choice][0];
+      dy = incrementOptions[choice][1];
+      if (!move()) {
+        dx = -dx;
+        dy = -dy;
       }
       break;
   }

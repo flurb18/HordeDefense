@@ -32,6 +32,10 @@ struct MapUnit {
   };
   unsigned int x, y, index;
   int type;
+  double scent;
+  double prevScent;
+  // Should be less than 0.25
+  double diffusion;
   Agent* agent;
   Game* game;
   const Team* team;
@@ -45,6 +49,7 @@ struct MapUnit {
   /* Create an iterator through a rectangle of mapunits starting with this one
      at the top left */
   iterator getIterator(int w, int h) {return iterator(this, w, h);};
+  void update();
 };
 
 #endif

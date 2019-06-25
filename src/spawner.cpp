@@ -9,7 +9,7 @@
    and sets the map units where the spawner is */
 Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  unsigned int s, unsigned int t_) : Square(s), \
-                 timeToCreateAgent(t_), paths(g, u), topLeft(u), game(g), team(t) {
+                 timeToCreateAgent(t_), topLeft(u), game(g), team(t), paths(g, u) {
   for (MapUnit::iterator iter = topLeft->getIterator(size, size); iter.hasNext(); iter++) {
     iter->type = UNIT_TYPE_SPAWNER;
     iter->team = t;
@@ -25,6 +25,7 @@ void Spawner::update() {
   }
   /* Update the agents this spawner tracks */
   for (Agent* a: agents) a->update();
+  paths.update();
 }
 
 /* Try to spawn an agent. Spawner spawns in areas of its size up, down left and

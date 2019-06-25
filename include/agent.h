@@ -9,7 +9,7 @@ struct Team;
 
 const int OBJECTIVE_TYPE_WAIT = 0;
 const int OBJECTIVE_TYPE_EXPLORE = 1;
-const int OBJECTIVE_TYPE_GOTO = 2;
+const int OBJECTIVE_TYPE_FOLLOW_SCENT = 2;
 const int OBJECTIVE_TYPE_BUILD = 3;
 const int OBJECTIVE_TYPE_CHARGE = 4;
 

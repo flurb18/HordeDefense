@@ -16,8 +16,6 @@ class Spawner: public Square {
 private:
   /* How many ticks between Agent spawn attempts */
   unsigned int timeToCreateAgent;
-  /* Paths object for agent newborns */
-  Paths paths;
   /* Agents spawned/updated by this spawner */
   std::vector<Agent*> agents;
   MapUnit* topLeft;
@@ -26,6 +24,8 @@ private:
 public:
   Game* game;
   const Team* team;
+  /* Paths object for agent newborns */
+  Paths paths;
   Spawner(Game*, MapUnit*, const Team*, unsigned int, unsigned int);
   ~Spawner();
   void update();

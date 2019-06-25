@@ -265,6 +265,12 @@ void Game::draw() {
 /* Update the spawners, which will update the agents they track */
 void Game::update() {
   spawn->update();
+  for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
+    iter->scent = 255;
+  }
+  for (MapUnit* u: mapUnits) {
+    u->update();
+  }
 }
 
 /* Main loop of the game; largely just handles events, calls draw() and update()
