@@ -3,16 +3,20 @@
 #include "agent.h"
 #include "game.h"
 
-MapUnit::MapUnit(Game* g): type(UNIT_TYPE_OUTSIDE), scent(0.0), prevScent(0.0), diffusion(0.1), game(g) {}
+MapUnit::MapUnit(Game* g): type(UNIT_TYPE_OUTSIDE), game(g) {
+  initializeScents();
+}
 
 MapUnit::MapUnit(Game* g, int x_, int y_): \
-             x(x_), y(y_), type(UNIT_TYPE_EMPTY), scent(0.0), prevScent(0.0), diffusion(0.1), game(g)  {
+             x(x_), y(y_), type(UNIT_TYPE_EMPTY), game(g)  {
   index = game->coordsToSqIndex(x, y, game->getSize());
+  initializeScents();
 }
 
 MapUnit::MapUnit(Game* g, const Team* t, int type_, int x_, int y_): \
-             x(x_), y(y_), type(type_), scent(0.0), prevScent(0.0), diffusion(0.1), game(g), team(t) {
+             x(x_), y(y_), type(type_), game(g), team(t) {
   index = game->coordsToSqIndex(x, y, game->getSize());
+  initializeScents();
 }
 
 void MapUnit::iterator::next() {
@@ -29,9 +33,20 @@ void MapUnit::iterator::next() {
   }
 }
 
+void MapUnit::initializeScents() {
+  for (int i = 0; i < NUM_OF_TEAMS; i++) {
+    scent[i] = 0.0;
+    prevScent[i] = 0.0;
+    diffusion[i] = 0.1;
+  }
+}
+
 void MapUnit::update() {
-  prevScent = scent;
-  if (type == UNIT_TYPE_EMPTY || type == UNIT_TYPE_DOOR) {
-    scent = diffusion*(left->prevScent + up->prevScent + right->scent + down->scent);
-  } else scent = 0.0;
+  for (int i = 0; i < NUM_OF_TEAMS; i++) {
+    prevScent[i] = scent[i];
+    if (type == UNIT_TYPE_EMPTY || type == UNIT_TYPE_DOOR) {
+      // Left and up have already been iterated through while updating
+      scent[i] = diffusion[i]*(left->prevScent[i] + up->prevScent[i] + right->scent[i] + down->scent[i]);
+    } else scent[i] = 0.0;
+  }
 }

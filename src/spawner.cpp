@@ -9,11 +9,10 @@
    and sets the map units where the spawner is */
 Spawner::Spawner(Game* g, MapUnit* u, const Team* t, \
                  unsigned int s, unsigned int t_) : Square(s), \
-                 timeToCreateAgent(t_), topLeft(u), game(g), team(t), paths(g, u) {
+                 timeToCreateAgent(t_), topLeft(u), game(g), team(t) {
   for (MapUnit::iterator iter = topLeft->getIterator(size, size); iter.hasNext(); iter++) {
     iter->type = UNIT_TYPE_SPAWNER;
     iter->team = t;
-    paths.visible[iter->index] = true;
   }
 }
 
@@ -25,7 +24,6 @@ void Spawner::update() {
   }
   /* Update the agents this spawner tracks */
   for (Agent* a: agents) a->update();
-  paths.update();
 }
 
 /* Try to spawn an agent. Spawner spawns in areas of its size up, down left and
@@ -52,10 +50,9 @@ void Spawner::spawnAgent() {
      don't do it (clear the area around your spawn!) */
   if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
-    paths.visible[spawnUnitIndex] = true;
     /* Setting the map unit as UNIT_TYPE_AGENT and setting its reference to the
        agent it contains is done in the constructor of Agent */
-    agents.push_back(new Agent(game, &paths, uptr, team));
+    agents.push_back(new Agent(game, uptr, team));
     switch(whichSide) {
       case 0:
         agents.back()->dx = 1;

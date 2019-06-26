@@ -25,7 +25,7 @@ private:
 public:
   Game* game;
   MapUnit* unit;
-  Agent(Game*, Paths*, MapUnit*, const Team*);
+  Agent(Game*, MapUnit*, const Team*);
   ~Agent();
   void update();
 };

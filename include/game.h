@@ -6,6 +6,7 @@
 
 #include "mapunit.h"
 #include "square.h"
+#include "teams.h"
 
 /* Forward declarations */
 class Display;
@@ -16,23 +17,6 @@ const int GAME_CONTEXT_EXIT = 0;
 const int GAME_CONTEXT_UNSELECTED = 1;
 const int GAME_CONTEXT_SELECTING = 2;
 const int GAME_CONTEXT_SELECTED = 3;
-
-/* Data structure to contain information about a team; unique team number and
-   color */
-struct Team {
-  int teamNum;
-  int R;
-  int G;
-  int B;
-  Team(int t, int r, int g, int b): teamNum(t), R(r), G(g), B(b) {};
-  bool equals(const Team* that) const {return this->teamNum == that->teamNum;};
-};
-
-/* Predefined teams */
-const Team WHITE_TEAM = Team(0, 255, 255, 255);
-const Team RED_TEAM = Team(1, 255, 0, 0);
-const Team GREEN_TEAM = Team(2, 0, 255, 0);
-const Team BLUE_TEAM = Team(3, 0, 0, 255);
 
 class Game: public Square {
 private:

@@ -266,7 +266,7 @@ void Game::draw() {
 void Game::update() {
   spawn->update();
   for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
-    iter->scent = 255;
+    if (iter->type == UNIT_TYPE_EMPTY) iter->scent[GREEN_TEAM.teamNum] = 255;
   }
   for (MapUnit* u: mapUnits) {
     u->update();

@@ -4,11 +4,10 @@
 #include <vector>
 
 #include "game.h"
-#include "paths.h"
 #include "mapunit.h"
 
-Agent::Agent(Game* g, Paths* p, MapUnit* m, const Team* t):
-              paths(p), team(t), game(g), unit(m) {
+Agent::Agent(Game* g, MapUnit* m, const Team* t):
+              team(t), game(g), unit(m) {
   objective = OBJECTIVE_TYPE_FOLLOW_SCENT;
   dx = 0;
   dy = 0;
@@ -26,16 +25,16 @@ void Agent::update() {
   switch(objective) {
     case OBJECTIVE_TYPE_EXPLORE:
       if (unit->left->type != UNIT_TYPE_OUTSIDE) {
-        if (paths->visible[unit->left->index] == false) options.push_back(0);
+        options.push_back(0);
       }
       if (unit->right->type != UNIT_TYPE_OUTSIDE) {
-        if (paths->visible[unit->right->index] == false) options.push_back(1);
+        options.push_back(1);
       }
       if (unit->up->type != UNIT_TYPE_OUTSIDE) {
-        if (paths->visible[unit->up->index] == false) options.push_back(2);
+        options.push_back(2);
       }
       if (unit->down->type != UNIT_TYPE_OUTSIDE) {
-        if (paths->visible[unit->down->index] == false) options.push_back(3);
+        options.push_back(3);
       }
       int exploreSelection;
       if (options.size() != 0) exploreSelection = options[rand() % options.size()];
@@ -57,22 +56,17 @@ void Agent::update() {
       double maxAvailableScent = 0.0;
       // If none of the adjacent squares have any scent, try a random one
       int choice = rand() % 4;
-      if (unit->left->scent > maxAvailableScent) {
-          choice = 0;
-          maxAvailableScent = unit->left->scent;
+      double scents[4] = {unit->left->scent[team->teamNum], \
+                          unit->right->scent[team->teamNum], \
+                          unit->up->scent[team->teamNum], \
+                          unit->down->scent[team->teamNum]};
+      for (int i = 0; i < 4; i++) {
+        if (scents[i] > maxAvailableScent) maxAvailableScent = scents[i];
       }
-      if (unit->right->scent > maxAvailableScent) {
-        choice = 1;
-        maxAvailableScent = unit->right->scent;
+      for (int i = 0; i < 4; i++) {
+        if (scents[i] == maxAvailableScent) options.push_back(i);
       }
-      if (unit->up->scent > maxAvailableScent) {
-        choice = 2;
-        maxAvailableScent = unit->up->scent;
-      }
-      if (unit->down->scent > maxAvailableScent) {
-        choice = 3;
-        maxAvailableScent = unit->down->scent;
-      }
+      choice = options[rand() % options.size()];
       dx = incrementOptions[choice][0];
       dy = incrementOptions[choice][1];
       if (!move()) {
@@ -91,7 +85,6 @@ bool Agent::moveTo(MapUnit* destUnit) {
   unit->type = UNIT_TYPE_EMPTY;
   unit->agent = nullptr;
   unit->team = nullptr;
-  paths->visible[destUnit->index] = true;
   unit = destUnit;
   return true;
 }

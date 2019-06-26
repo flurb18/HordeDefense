@@ -1,6 +1,8 @@
 #ifndef MAPUNIT_H
 #define MAPUNIT_H
 
+#include "teams.h"
+
 const int UNIT_TYPE_EMPTY = 0;
 const int UNIT_TYPE_AGENT = 1;
 const int UNIT_TYPE_SPAWNER = 2;
@@ -32,10 +34,10 @@ struct MapUnit {
   };
   unsigned int x, y, index;
   int type;
-  double scent;
-  double prevScent;
+  double scent[NUM_OF_TEAMS];
+  double prevScent[NUM_OF_TEAMS];
   // Should be less than 0.25
-  double diffusion;
+  double diffusion[NUM_OF_TEAMS];
   Agent* agent;
   Game* game;
   const Team* team;
@@ -46,6 +48,7 @@ struct MapUnit {
   MapUnit(Game*);
   MapUnit(Game*, int, int);
   MapUnit(Game*, const Team*, int, int, int);
+  void initializeScents();
   /* Create an iterator through a rectangle of mapunits starting with this one
      at the top left */
   iterator getIterator(int w, int h) {return iterator(this, w, h);};
