@@ -1,14 +1,13 @@
 #include "agent.h"
 
-#include <cstdlib>
 #include <vector>
+#include <random>
 
 #include "game.h"
 #include "mapunit.h"
 
 Agent::Agent(Game* g, MapUnit* m, const Team* t):
               team(t), game(g), unit(m) {
-  objective = OBJECTIVE_TYPE_FOLLOW_SCENT;
   dx = 0;
   dy = 0;
   unit->agent = this;
@@ -19,63 +18,51 @@ Agent::Agent(Game* g, MapUnit* m, const Team* t):
 void Agent::update() {
   /* Only update once per tick */
   if (lastUpdatedTimestamp == game->t) return;
+  MapUnit* neighbors[4] = {unit->left, unit->right, unit->up, unit->down};
+  // Handle objectives at the neighbors of the agent
+  for (MapUnit* m: neighbors) {
+    if (m->objective != nullptr) {
+      switch (m->objective->type) {
+        case OBJECTIVE_TYPE_BUILD:
+          if (m->type == UNIT_TYPE_EMPTY) m->type = UNIT_TYPE_WALL;
+          break;
+        case OBJECTIVE_TYPE_DESTROY:
+          if (m->type == UNIT_TYPE_WALL) m->type = UNIT_TYPE_EMPTY;
+          break;
+      }
+    }
+  }
   lastUpdatedTimestamp = game->t;
   int incrementOptions[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
   std::vector<int> options;
-  switch(objective) {
-    case OBJECTIVE_TYPE_EXPLORE:
-      if (unit->left->type != UNIT_TYPE_OUTSIDE) {
-        options.push_back(0);
+  // Code for choosing a scent at random (weighted)
+  double scents[4] = {\
+    unit->left->scent[team->teamNum], \
+    unit->right->scent[team->teamNum], \
+    unit->up->scent[team->teamNum], \
+    unit->down->scent[team->teamNum]};
+    double total = 0.0;
+    for (int i = 0; i < 4; i++) {
+      total += scents[i];
+    }
+    int choice = rand() % 4;
+    if (total > 0.0) {
+      double rnd = ((double)rand() / (double)RAND_MAX) * total;
+      for(int i=0; i<4; i++) {
+        if(rnd < scents[i]) {
+          choice = i;
+          break;
+        }
+        rnd -= scents[i];
       }
-      if (unit->right->type != UNIT_TYPE_OUTSIDE) {
-        options.push_back(1);
-      }
-      if (unit->up->type != UNIT_TYPE_OUTSIDE) {
-        options.push_back(2);
-      }
-      if (unit->down->type != UNIT_TYPE_OUTSIDE) {
-        options.push_back(3);
-      }
-      int exploreSelection;
-      if (options.size() != 0) exploreSelection = options[rand() % options.size()];
-      else exploreSelection = rand() % 4;
-      dx = incrementOptions[exploreSelection][0];
-      dy = incrementOptions[exploreSelection][1];
-      if (!move()) {
-        dx = -dx;
-        dy = -dy;
-      }
-      break;
-    case OBJECTIVE_TYPE_CHARGE:
-      if (!move()) {
-        dx = 0;
-        dy = 0;
-      }
-      break;
-    case OBJECTIVE_TYPE_FOLLOW_SCENT:
-      double maxAvailableScent = 0.0;
-      // If none of the adjacent squares have any scent, try a random one
-      int choice = rand() % 4;
-      double scents[4] = {unit->left->scent[team->teamNum], \
-                          unit->right->scent[team->teamNum], \
-                          unit->up->scent[team->teamNum], \
-                          unit->down->scent[team->teamNum]};
-      for (int i = 0; i < 4; i++) {
-        if (scents[i] > maxAvailableScent) maxAvailableScent = scents[i];
-      }
-      for (int i = 0; i < 4; i++) {
-        if (scents[i] == maxAvailableScent) options.push_back(i);
-      }
-      choice = options[rand() % options.size()];
-      dx = incrementOptions[choice][0];
-      dy = incrementOptions[choice][1];
-      if (!move()) {
-        dx = -dx;
-        dy = -dy;
-      }
-      break;
+    }
+    dx = incrementOptions[choice][0];
+    dy = incrementOptions[choice][1];
+    if (!move()) {
+      dx = -dx;
+      dy = -dy;
+    }
   }
-}
 
 bool Agent::moveTo(MapUnit* destUnit) {
   if (destUnit->type != UNIT_TYPE_EMPTY) return false;

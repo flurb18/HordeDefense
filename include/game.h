@@ -2,9 +2,11 @@
 #define GAME_H
 
 #include <vector>
+#include <list>
 #include <SDL2/SDL_rect.h>
 
 #include "mapunit.h"
+#include "objective.h"
 #include "square.h"
 #include "teams.h"
 
@@ -33,6 +35,7 @@ private:
   void panViewDown();
   MapUnit::iterator getSelectionIterator();
   void adjustSelection(MapUnit::iterator);
+  void buildOnSelection();
   void draw();
   void update();
 public:
@@ -51,6 +54,7 @@ public:
   SDL_Rect view;
   /* Vector of map units */
   std::vector<MapUnit*> mapUnits;
+  std::list<Objective*> objectives;
   Display* disp;
   MapUnit outside;
   MapUnit* selectedUnit;

@@ -51,7 +51,7 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[coordsToSqIndex(size/2,size/2,size)];
   selectedUnit = spawnUnit;
-  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
+  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 20);
 
 }
 
@@ -216,6 +216,13 @@ MapUnit::iterator Game::getSelectionIterator() {
   return first->getIterator(selectionUnitWidth, selectionUnitHeight);
 }
 
+void Game::buildOnSelection() {
+  MapUnit::iterator iter = getSelectionIterator();
+  SDL_Rect r = {(int)iter->x, (int)iter->y, iter.w, iter.h};
+  Objective* o = new Objective(OBJECTIVE_TYPE_BUILD, 255, this, r, &GREEN_TEAM);
+  objectives.push_back(o);
+}
+
 /* Draw the current game screen based on context */
 void Game::draw() {
   disp->fillBlack();
@@ -265,8 +272,11 @@ void Game::draw() {
 /* Update the spawners, which will update the agents they track */
 void Game::update() {
   spawn->update();
-  for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
+  /*for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
     if (iter->type == UNIT_TYPE_EMPTY) iter->scent[GREEN_TEAM.teamNum] = 255;
+  }*/
+  for (Objective* o: objectives) {
+    o->update();
   }
   for (MapUnit* u: mapUnits) {
     u->update();
@@ -335,6 +345,9 @@ void Game::mainLoop() {
             case SDLK_LEFT:
               panViewLeft();
               mouseMoved(x,y);
+              break;
+            case SDLK_b:
+              buildOnSelection();
               break;
           }
           break;
