@@ -23,7 +23,9 @@ void Spawner::update() {
     spawnAgent();
   }
   /* Update the agents this spawner tracks */
-  for (Agent* a: agents) a->update();
+  for (auto it = agents.begin(); it != agents.end(); it++){
+    if (!it->update()) agents.erase(it++);
+  }
 }
 
 /* Try to spawn an agent. Spawner spawns in areas of its size up, down left and
@@ -52,25 +54,24 @@ void Spawner::spawnAgent() {
     MapUnit* uptr = game->mapUnits[spawnUnitIndex];
     /* Setting the map unit as UNIT_TYPE_AGENT and setting its reference to the
        agent it contains is done in the constructor of Agent */
-    agents.push_back(new Agent(game, uptr, team));
+    agents.emplace_back(game, uptr, team);
     switch(whichSide) {
       case 0:
-        agents.back()->dx = 1;
+        agents.back().dx = 1;
         break;
       case 1:
-        agents.back()->dy = 1;
+        agents.back().dy = 1;
         break;
       case 2:
-        agents.back()->dx = -1;
+        agents.back().dx = -1;
         break;
       case 3:
-        agents.back()->dy = -1;
+        agents.back().dy = -1;
         break;
     }
   }
 }
 
 Spawner::~Spawner() {
-  for (unsigned int i = 0; i < agents.size(); i++) delete agents[i];
   agents.clear();
 }

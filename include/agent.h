@@ -19,7 +19,7 @@ public:
   MapUnit* unit;
   Agent(Game*, MapUnit*, const Team*);
   ~Agent();
-  void update();
+  bool update();
 };
 
 #endif

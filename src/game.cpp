@@ -51,7 +51,7 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[coordsToSqIndex(size/2,size/2,size)];
   selectedUnit = spawnUnit;
-  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 20);
+  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
 
 }
 
@@ -254,11 +254,14 @@ void Game::draw() {
   std::string unitInfo = "";
   switch(selectedUnit->type) {
     case UNIT_TYPE_AGENT:
-    unitInfo = "Agent @ ";
-    break;
+      unitInfo = "Agent @ ";
+      break;
     case UNIT_TYPE_SPAWNER:
-    unitInfo = "Spawner @ ";
-    break;
+      unitInfo = "Spawner @ ";
+      break;
+    case UNIT_TYPE_WALL:
+      unitInfo = "Wall @ ";
+      break;
   }
   unitInfo += std::to_string(selectedUnit->x) + ", " + std::to_string(selectedUnit->y);
   int unitInfoWidth;
@@ -269,7 +272,7 @@ void Game::draw() {
   if (paused) disp->drawText("PAUSED", 0, 0);
 }
 
-/* Update the spawners, which will update the agents they track */
+/* Update errythang */
 void Game::update() {
   spawn->update();
   /*for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {

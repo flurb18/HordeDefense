@@ -1,7 +1,7 @@
 #ifndef SPAWNER_H
 #define SPAWNER_H
 
-#include <vector>
+#include <list>
 
 #include "square.h"
 
@@ -16,7 +16,7 @@ private:
   /* How many ticks between Agent spawn attempts */
   unsigned int timeToCreateAgent;
   /* Agents spawned/updated by this spawner */
-  std::vector<Agent*> agents;
+  std::list<Agent> agents;
   MapUnit* topLeft;
   void spawnAgent();
 

@@ -15,16 +15,21 @@ Agent::Agent(Game* g, MapUnit* m, const Team* t):
 }
 
 /* Update agent based on objective */
-void Agent::update() {
+bool Agent::update() {
   /* Only update once per tick */
-  if (lastUpdatedTimestamp == game->t) return;
+  if (lastUpdatedTimestamp == game->t) return true;
   MapUnit* neighbors[4] = {unit->left, unit->right, unit->up, unit->down};
   // Handle objectives at the neighbors of the agent
   for (MapUnit* m: neighbors) {
     if (m->objective != nullptr) {
       switch (m->objective->type) {
         case OBJECTIVE_TYPE_BUILD:
-          if (m->type == UNIT_TYPE_EMPTY) m->type = UNIT_TYPE_WALL;
+          if (moveTo(m)) {
+            m->type = UNIT_TYPE_WALL;
+            m->agent = nullptr;
+            m->team = nullptr;
+            return false;
+          }
           break;
         case OBJECTIVE_TYPE_DESTROY:
           if (m->type == UNIT_TYPE_WALL) m->type = UNIT_TYPE_EMPTY;
@@ -62,6 +67,7 @@ void Agent::update() {
       dx = -dx;
       dy = -dy;
     }
+    return true;
   }
 
 bool Agent::moveTo(MapUnit* destUnit) {
