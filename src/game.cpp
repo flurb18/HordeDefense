@@ -51,7 +51,7 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   scaleY = size / view.h;
   MapUnit* spawnUnit = mapUnits[coordsToSqIndex(size/2,size/2,size)];
   selectedUnit = spawnUnit;
-  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 3);
+  spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 1);
 
 }
 
@@ -216,11 +216,15 @@ MapUnit::iterator Game::getSelectionIterator() {
   return first->getIterator(selectionUnitWidth, selectionUnitHeight);
 }
 
-void Game::buildOnSelection() {
+void Game::buildWall() {
   MapUnit::iterator iter = getSelectionIterator();
   SDL_Rect r = {(int)iter->x, (int)iter->y, iter.w, iter.h};
-  Objective* o = new Objective(OBJECTIVE_TYPE_BUILD, 255, this, r, &GREEN_TEAM);
+  Objective* o = new Objective(OBJECTIVE_TYPE_BUILD_WALL, 255, this, r, &GREEN_TEAM);
   objectives.push_back(o);
+}
+
+void Game::buildDoor() {
+  //TODO
 }
 
 /* Draw the current game screen based on context */
@@ -264,9 +268,9 @@ void Game::draw() {
       break;
   }
   unitInfo += std::to_string(selectedUnit->x) + ", " + std::to_string(selectedUnit->y);
+  const char *unitInfoCstr = unitInfo.c_str();
   int unitInfoWidth;
   int unitInfoHeight;
-  const char *unitInfoCstr = unitInfo.c_str();
   disp->sizeText(unitInfoCstr, &unitInfoWidth, &unitInfoHeight);
   disp->drawText(unitInfoCstr, disp->getSize() - unitInfoWidth, 0);
   if (paused) disp->drawText("PAUSED", 0, 0);
@@ -275,9 +279,6 @@ void Game::draw() {
 /* Update errythang */
 void Game::update() {
   spawn->update();
-  /*for (MapUnit::iterator iter = getSelectionIterator(); iter.hasNext(); iter++) {
-    if (iter->type == UNIT_TYPE_EMPTY) iter->scent[GREEN_TEAM.teamNum] = 255;
-  }*/
   for (Objective* o: objectives) {
     o->update();
   }
@@ -349,8 +350,11 @@ void Game::mainLoop() {
               panViewLeft();
               mouseMoved(x,y);
               break;
-            case SDLK_b:
-              buildOnSelection();
+            case SDLK_w:
+              buildWall();
+              break;
+            case SDLK_d:
+              buildDoor();
               break;
           }
           break;

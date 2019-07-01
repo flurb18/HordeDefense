@@ -23,7 +23,7 @@ bool Agent::update() {
   for (MapUnit* m: neighbors) {
     if (m->objective != nullptr) {
       switch (m->objective->type) {
-        case OBJECTIVE_TYPE_BUILD:
+        case OBJECTIVE_TYPE_BUILD_WALL:
           if (moveTo(m)) {
             m->type = UNIT_TYPE_WALL;
             m->agent = nullptr;

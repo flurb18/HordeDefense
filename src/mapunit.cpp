@@ -37,14 +37,14 @@ void MapUnit::initializeScents() {
   for (int i = 0; i < NUM_OF_TEAMS; i++) {
     scent[i] = 0.0;
     prevScent[i] = 0.0;
-    diffusion[i] = 0.1;
+    diffusion[i] = 0.2;
   }
 }
 
 void MapUnit::update() {
   for (int i = 0; i < NUM_OF_TEAMS; i++) {
     prevScent[i] = scent[i];
-    if (type == UNIT_TYPE_EMPTY || type == UNIT_TYPE_DOOR) {
+    if (type == UNIT_TYPE_EMPTY || (type == UNIT_TYPE_DOOR && team->teamNum == i)) {
       // Left and up have already been iterated through while updating
       scent[i] = diffusion[i]*(left->prevScent[i] + up->prevScent[i] + right->scent[i] + down->scent[i]);
     } else scent[i] = 0.0;

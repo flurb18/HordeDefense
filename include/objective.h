@@ -7,7 +7,7 @@
 
 #include "mapunit.h"
 
-const int OBJECTIVE_TYPE_BUILD = 2;
+const int OBJECTIVE_TYPE_BUILD_WALL = 2;
 const int OBJECTIVE_TYPE_GOTO = 3;
 const int OBJECTIVE_TYPE_DESTROY = 4;
 const int OBJECTIVE_TYPE_SUPER = 5;

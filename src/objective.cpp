@@ -6,16 +6,24 @@
 
 Objective::Objective(int t, int s, Game* g, SDL_Rect r, const Team* t_): \
   type(t), strength(s), game(g), region(r), team(t_) {
-  if (type == OBJECTIVE_TYPE_BUILD && region.w > 1 && region.h > 1) {
-    type = OBJECTIVE_TYPE_SUPER;
-    for (int i = 0; i < region.h; i++) {
-      SDL_Rect slice = {region.x, region.y + i, region.w, 1};
-      subObjectives.emplace_back(OBJECTIVE_TYPE_BUILD, strength, game, slice, team);
-    }
-    iter = subObjectives.begin();
-    for (MapUnit::iterator m = iter->getIterator(); m.hasNext(); m++) {
-      m->objective = &(*iter);
-    }
+  switch(type) {
+    case OBJECTIVE_TYPE_BUILD_WALL:
+      if (region.w > 1 && region.h > 1) {
+        type = OBJECTIVE_TYPE_SUPER;
+        if (region.h >= region.w) {
+          for (int i = 0; i < region.h; i++) {
+            SDL_Rect slice = {region.x, region.y + i, region.w, 1};
+            subObjectives.emplace_back(OBJECTIVE_TYPE_BUILD_WALL, strength, game, slice, team);
+          }
+        } else {
+          for (int j = 0; j < region.w; j++) {
+            SDL_Rect slice = {region.x + j, region.y, 1, region.h};
+            subObjectives.emplace_back(OBJECTIVE_TYPE_BUILD_WALL, strength, game, slice, team);
+          }
+        }
+        iter = subObjectives.begin();
+      }
+      break;
   }
 }
 
@@ -26,7 +34,7 @@ MapUnit::iterator Objective::getIterator() {
 
 bool Objective::isDone() {
   switch(type) {
-    case OBJECTIVE_TYPE_BUILD:
+    case OBJECTIVE_TYPE_BUILD_WALL:
       for (MapUnit::iterator m = getIterator(); m.hasNext(); m++) {
         if (m->type != UNIT_TYPE_WALL) return false;
       }
@@ -50,17 +58,14 @@ void Objective::update() {
         iter->update();
         if (iter->isDone()){
           iter++;
-          if (iter != subObjectives.end()) {
-            for (MapUnit::iterator m = iter->getIterator(); m.hasNext(); m++) {
-              m->objective = &(*iter);
-            }
-          }
         }
       }
       break;
-    default:
+    case OBJECTIVE_TYPE_BUILD_WALL:
       for (MapUnit::iterator m = getIterator(); m.hasNext(); m++) {
+        m->objective = this;
         if (m->type == UNIT_TYPE_EMPTY) m->scent[team->teamNum] = strength;
       }
+      break;
   }
 }

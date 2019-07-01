@@ -35,7 +35,8 @@ private:
   void panViewDown();
   MapUnit::iterator getSelectionIterator();
   void adjustSelection(MapUnit::iterator);
-  void buildOnSelection();
+  void buildWall();
+  void buildDoor();
   void draw();
   void update();
 public:
