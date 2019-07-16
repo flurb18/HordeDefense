@@ -47,11 +47,10 @@ void Spawner::spawnAgent() {
   int spawnIncrementOptions[4][2] = {{s, 0}, {0, s}, {-s, 0}, {0, -s}};
   spawnX += spawnIncrementOptions[whichSide][0];
   spawnY += spawnIncrementOptions[whichSide][1];
-  int spawnUnitIndex = game->coordsToSqIndex(spawnX, spawnY, game->getSize());
+  MapUnit* uptr = game->mapUnitAt(spawnX, spawnY);
   /* Check if we can actually spawn an agent in the desired space; if not, just
      don't do it (clear the area around your spawn!) */
-  if (game->mapUnits[spawnUnitIndex]->type == UNIT_TYPE_EMPTY) {
-    MapUnit* uptr = game->mapUnits[spawnUnitIndex];
+  if (uptr->type == UNIT_TYPE_EMPTY) {
     /* Setting the map unit as UNIT_TYPE_AGENT and setting its reference to the
        agent it contains is done in the constructor of Agent */
     agents.emplace_back(game, uptr, team);

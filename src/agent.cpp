@@ -12,13 +12,14 @@ Agent::Agent(Game* g, MapUnit* m, const Team* t):
   dy = 0;
   unit->agent = this;
   unit->type = UNIT_TYPE_AGENT;
+  unit->team = t;
 }
 
 /* Update agent based on objective */
 bool Agent::update() {
   /* Only update once per tick */
   if (lastUpdatedTimestamp == game->t) return true;
-  MapUnit* neighbors[4] = {unit->left, unit->right, unit->up, unit->down};
+  MapUnit* neighbors[5] = {unit->left, unit->right, unit->up, unit->down, unit};
   // Handle objectives at the neighbors of the agent
   for (MapUnit* m: neighbors) {
     if (m->objective != nullptr) {
@@ -28,6 +29,9 @@ bool Agent::update() {
             m->type = UNIT_TYPE_WALL;
             m->agent = nullptr;
             m->team = nullptr;
+            m->objective->numUnitsDone++;
+            // TODO
+            m->building = nullptr;
             return false;
           }
           break;

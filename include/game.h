@@ -59,9 +59,7 @@ public:
   Display* disp;
   MapUnit outside;
   MapUnit* selectedUnit;
-  unsigned int coordsToSqIndex(int, int, int);
-  unsigned int dispCoordsToSqIndex(int, int, int);
-  void indexToSqCoords(int, int, int*, int*);
+  MapUnit* mapUnitAt(int, int);
   Game(int);
   ~Game();
   void mainLoop();

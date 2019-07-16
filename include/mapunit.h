@@ -13,6 +13,7 @@ const int UNIT_TYPE_OUTSIDE = 5;
 class Agent;
 class Game;
 class Objective;
+struct Building;
 
 struct MapUnit {
   /* An iterator for traversing through a predefined rectangle of mapunits */
@@ -40,6 +41,7 @@ struct MapUnit {
   double diffusion[NUM_OF_TEAMS];
   Agent* agent;
   Game* game;
+  Building* building;
   Objective* objective;
   const Team* team;
   MapUnit* up;

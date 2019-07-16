@@ -27,7 +27,7 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   /* Interlink the map units so they all know their adjacent units */
   for (unsigned int i = 0; i < size; i++) {
     for (unsigned int j = 0; j < size; j++) {
-      int index = coordsToSqIndex(j, i, size);
+      int index = i * size + j;
       if (i == 0) mapUnits[index]->up = &outside;
       else mapUnits[index]->up = mapUnits[index - size];
       if (i == size - 1) mapUnits[index]->down = &outside;
@@ -49,26 +49,15 @@ Game::Game(int s): Square(s), context(GAME_CONTEXT_UNSELECTED), t(0), dispT(0), 
   /* Set scale variables */
   scaleX = size / view.w;
   scaleY = size / view.h;
-  MapUnit* spawnUnit = mapUnits[coordsToSqIndex(size/2,size/2,size)];
+  MapUnit* spawnUnit = mapUnitAt(size/2, size/2);
   selectedUnit = spawnUnit;
   spawn = new Spawner(this, spawnUnit, &GREEN_TEAM, 8, 1);
 
 }
 
-/* The following three methods are helper methods to compute the array index of
-   a certain spot in an array, or vice versa*/
-unsigned int Game::coordsToSqIndex(int x, int y, int sqPerSide) {
-  return y * sqPerSide + x;
-}
-
-unsigned int Game::dispCoordsToSqIndex(int x, int y, int sqPerSide) {
-  int sqSize = disp->getSize() / sqPerSide;
-  return coordsToSqIndex(x / sqSize, y / sqSize, sqPerSide);
-}
-
-void Game::indexToSqCoords(int index, int sqPerSide, int *x, int *y) {
-  *x = index % sqPerSide;
-  *y = index / sqPerSide;
+/* Public helper method */
+MapUnit* Game::mapUnitAt(int x, int y) {
+  return mapUnits[y * size + x];
 }
 
 /* Handle a mouse moved to (x,y) */
@@ -84,7 +73,7 @@ void Game::mouseMoved(int x, int y) {
   int mouseUnitAbsoluteY = mouseUnitY + view.y;
   switch(context) {
     case GAME_CONTEXT_UNSELECTED:
-      selectedUnit = mapUnits[coordsToSqIndex(mouseUnitAbsoluteX, mouseUnitAbsoluteY, size)];
+      selectedUnit = mapUnitAt(mouseUnitAbsoluteX, mouseUnitAbsoluteY);
       selection.x = mouseUnitX * scaleX;
       selection.y = mouseUnitY * scaleY;
       selection.w = scaleX;
@@ -212,7 +201,7 @@ MapUnit::iterator Game::getSelectionIterator() {
   int selectionUnitY = (selection.y / scaleY) + view.y;
   int selectionUnitWidth = selection.w / scaleX;
   int selectionUnitHeight = selection.h / scaleY;
-  MapUnit* first = mapUnits[coordsToSqIndex(selectionUnitX, selectionUnitY, size)];
+  MapUnit* first = mapUnitAt(selectionUnitX, selectionUnitY);
   return first->getIterator(selectionUnitWidth, selectionUnitHeight);
 }
 
@@ -230,7 +219,7 @@ void Game::buildDoor() {
 /* Draw the current game screen based on context */
 void Game::draw() {
   disp->fillBlack();
-  MapUnit* first = mapUnits[coordsToSqIndex(view.x, view.y, size)];
+  MapUnit* first = mapUnitAt(view.x, view.y);
   /* Iterate over view */
   for (MapUnit::iterator iter = first->getIterator(view.w, view.h); \
   iter.hasNext(); iter++) {

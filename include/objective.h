@@ -16,6 +16,8 @@ class Game;
 
 struct Objective {
   int type, strength;
+  int numUnitsDone, numUnitsRequired;
+  bool done;
   std::vector<Objective> subObjectives;
   std::vector<Objective>::iterator iter;
   Game* game;
@@ -23,7 +25,6 @@ struct Objective {
   const Team* team;
   Objective(int, int, Game*, SDL_Rect, const Team*);
   MapUnit::iterator getIterator();
-  void addSubObjective(Objective);
   bool isDone();
   void update();
 };
